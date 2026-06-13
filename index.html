@@ -479,8 +479,13 @@
               </div>
 
               <div class="form-row">
-                <label>Image URL</label>
-                <input id="questionImageUrl" placeholder="Paste Google Drive image URL or direct image URL" />
+                <label>Answer Image URL</label>
+                <input id="answerImageUrl" placeholder="Paste solution/answer image URL" />
+              </div>
+
+              <div class="form-row">
+                <label>Question Image URL</label>
+                <input id="questionImageUrl" placeholder="Paste question image URL" />
               </div>
 
               <div class="form-row">
@@ -811,7 +816,7 @@
         <h2 class="section-title">Short Notes</h2>
         ${notes.map(n => {
           const img = n.ImageUrl
-            ? `<img class="main-img" src="${escAttr(n.ImageUrl)}" alt="Short note image" />`
+            ? `<img class="main-img" src="${escAttr(getImageUrl(n.ImageUrl))}" alt="Short note image" />`
             : '';
 
           const topicLabel = n.TopicID ? ' / ' + esc(getTopicName(n.TopicID)) : ' / Module General';
@@ -864,8 +869,12 @@
       }
 
       el.innerHTML = questions.map((q, index) => {
-        const img = q.ImageUrl
-          ? `<img class="main-img" src="${escAttr(q.ImageUrl)}" alt="Question image" />`
+        const questionImg = q.ImageUrl
+          ? `<img class="main-img" src="${escAttr(getImageUrl(q.ImageUrl))}" alt="Question image" />`
+          : '';
+
+        const answerImg = q.AnswerImageUrl
+          ? `<img class="main-img" src="${escAttr(getImageUrl(q.AnswerImageUrl))}" alt="Answer image" />`
           : '';
 
         const tags = q.Tags ? `<div class="pill">${esc(q.Tags)}</div>` : '';
@@ -874,7 +883,7 @@
           <div class="card">
             <div class="muted">${esc(getModuleName(q.ModuleID))} / ${esc(getTopicName(q.TopicID))}</div>
             <div class="question-title">${index + 1}. ${nl2br(esc(q.Question))}</div>
-            ${img}
+            ${questionImg}
             ${tags}
             <div style="margin-top:12px;">
               <button class="primary" onclick="toggleAnswer('${escAttr(q.QuestionID)}')">
@@ -883,6 +892,7 @@
             </div>
             <div class="answer" id="ans_${escAttr(q.QuestionID)}">
               ${nl2br(esc(q.Answer))}
+              ${answerImg}
             </div>
           </div>
         `;
@@ -1209,6 +1219,7 @@
           TopicID: document.getElementById('questionTopic').value,
           Question: document.getElementById('questionText').value,
           Answer: document.getElementById('answerText').value,
+          AnswerImageUrl: document.getElementById('answerImageUrl').value,
           ImageUrl: document.getElementById('questionImageUrl').value,
           Tags: document.getElementById('questionTags').value,
           SortOrder: document.getElementById('questionSort').value,
@@ -1237,6 +1248,7 @@
       document.getElementById('questionTopic').value = q.TopicID || '';
       document.getElementById('questionText').value = q.Question || '';
       document.getElementById('answerText').value = q.Answer || '';
+      document.getElementById('answerImageUrl').value = q.AnswerImageUrl || '';
       document.getElementById('questionImageUrl').value = q.ImageUrl || '';
       document.getElementById('questionTags').value = q.Tags || '';
       document.getElementById('questionSort').value = q.SortOrder || 1;
@@ -1248,6 +1260,7 @@
       document.getElementById('questionId').value = '';
       document.getElementById('questionText').value = '';
       document.getElementById('answerText').value = '';
+      document.getElementById('answerImageUrl').value = '';
       document.getElementById('questionImageUrl').value = '';
       document.getElementById('questionTags').value = '';
       document.getElementById('questionSort').value = 1;
@@ -1473,6 +1486,22 @@
       } catch (err) {
         setStatus('passwordStatus', err.message || String(err), 'err');
       }
+    }
+
+    function getImageUrl(url) {
+      url = String(url || '').trim();
+
+      const match1 = url.match(/\/file\/d\/([^/]+)/);
+      if (match1 && match1[1]) {
+        return 'https://drive.google.com/thumbnail?id=' + match1[1] + '&sz=w1200';
+      }
+
+      const match2 = url.match(/[?&]id=([^&]+)/);
+      if (match2 && match2[1]) {
+        return 'https://drive.google.com/thumbnail?id=' + match2[1] + '&sz=w1200';
+      }
+
+      return url;
     }
 
     function getModuleName(moduleId) {
