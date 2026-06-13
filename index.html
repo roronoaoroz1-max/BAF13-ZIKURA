@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>BAF13 - ZIKURA</title>
+
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --radius: 16px;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 26px 16px;
+      text-align: center;
+      background: linear-gradient(135deg, #1d4ed8, #0f172a);
+      color: white;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 15px;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 700;
+    }
+
+    button:hover {
+      opacity: 0.92;
+    }
+
+    .primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .success {
+      background: var(--success);
+      color: white;
+    }
+
+    .warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+
+    .active-tab {
+      background: var(--primary);
+      color: white;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 15px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 115px;
+      resize: vertical;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .form-row {
+      margin-bottom: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .question-title {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      line-height: 1.6;
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      border-radius: 10px;
+    }
+
+    .answer.show {
+      display: block;
+    }
+
+    .main-img {
+      max-width: 100%;
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 9px;
+      background: #eef2ff;
+      color: #3730a3;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .admin-section {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .admin-page {
+      display: none;
+    }
+
+    .admin-page.active {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+
+    .small-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .small-actions button {
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .status {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .status.ok {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status.err {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .login-box {
+      max-width: 440px;
+      margin: 0 auto 16px;
+    }
+
+    .section-title {
+      margin: 20px 0 10px;
+    }
+
+    .note-body {
+      line-height: 1.65;
+    }
+
+    @media (max-width: 850px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 id="appTitle">BAF13 - ZIKURA</h1>
+    <p>Exam Q&A and Short Notes</p>
+  </header>
+
+  <div class="container">
+    <div class="topbar">
+      <div>
+        <div class="tabs" id="moduleTabs"></div>
+        <div class="tabs" id="topicTabs"></div>
+      </div>
+
+      <div class="search-row">
+        <input id="searchInput" placeholder="Search question, answer, note, or tag..." oninput="renderPublic()" />
+        <button class="ghost" onclick="toggleAdmin()">Admin</button>
+      </div>
+    </div>
+
+    <div class="topbar">
+      <div>
+        <button class="primary" onclick="showAllAnswers()">Show all answers</button>
+        <button onclick="hideAllAnswers()">Hide all answers</button>
+      </div>
+      <span class="muted" id="questionCount"></span>
+    </div>
+
+    <div id="loadingBox" class="card">Loading...</div>
+
+    <div id="notesSection" class="grid"></div>
+
+    <h2 class="section-title" id="qaHeading">Q&A</h2>
+    <div id="questionsList" class="grid"></div>
+
+    <section id="adminSection" class="admin-section">
+      <div id="loginBox" class="card login-box">
+        <h2>Admin Login</h2>
+
+        <div class="form-row">
+          <label>Username</label>
+          <input id="loginUsername" value="admin" />
+        </div>
+
+        <div class="form-row">
+          <label>Password</label>
+          <input id="loginPassword" type="password" placeholder="Default: admin123" />
+        </div>
+
+        <button class="primary" onclick="login()">Login</button>
+
+        <div id="loginStatus" class="status"></div>
+      </div>
+
+      <div id="adminBox" class="hidden">
+        <div class="topbar">
+          <h2>Admin Panel</h2>
+          <div>
+            <button onclick="refreshAdmin()">Refresh</button>
+            <button class="danger" onclick="logout()">Logout</button>
+          </div>
+        </div>
+
+        <div class="admin-tabs">
+          <button class="active-tab" id="tabModules" onclick="showAdminPage('Modules')">Modules</button>
+          <button id="tabTopics" onclick="showAdminPage('Topics')">Weeks / Topics</button>
+          <button id="tabQuestions" onclick="showAdminPage('Questions')">Q&A</button>
+          <button id="tabNotes" onclick="showAdminPage('Notes')">Short Notes</button>
+          <button id="tabSettings" onclick="showAdminPage('Settings')">Settings</button>
+        </div>
+
+        <div id="pageModules" class="admin-page active">
+          <div class="admin-grid">
+            <div class="card">
+              <h3>Add / Edit Module</h3>
+
+              <div class="form-row">
+                <label>Module ID</label>
+                <input id="moduleId" placeholder="Example: ECO102" />
+              </div>
+
+              <div class="form-row">
+                <label>Module Name</label>
+                <input id="moduleName" placeholder="Example: Microeconomics" />
+              </div>
+
+              <div class="form-row">
+                <label>Sort Order</label>
+                <input id="moduleSort" type="number" value="1" />
+              </div>
+
+              <div class="form-row">
+                <label>
+                  <input id="moduleActive" type="checkbox" checked style="width:auto;" />
+                  Active
+                </label>
+              </div>
+
+              <button class="primary" onclick="saveModuleForm()">Save Module</button>
+              <button onclick="clearModuleForm()">Clear</button>
+
+              <div id="moduleStatus" class="status"></div>
+            </div>
+
+            <div class="card">
+              <h3>Modules List</h3>
+              <div id="modulesTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="pageTopics" class="admin-page">
+          <div class="admin-grid">
+            <div class="card">
+              <h3>Add / Edit Week / Topic</h3>
+
+              <input type="hidden" id="topicId" />
+
+              <div class="form-row">
+                <label>Module</label>
+                <select id="topicModule"></select>
+              </div>
+
+              <div class="form-row">
+                <label>Week / Topic Name</label>
+                <input id="topicName" placeholder="Example: Week 1 or Topic 1" />
+              </div>
+
+              <div class="form-row">
+                <label>Sort Order</label>
+                <input id="topicSort" type="number" value="1" />
+              </div>
+
+              <div class="form-row">
+                <label>
+                  <input id="topicActive" type="checkbox" checked style="width:auto;" />
+                  Active
+                </label>
+              </div>
+
+              <button class="primary" onclick="saveTopicForm()">Save Week / Topic</button>
+              <button onclick="clearTopicForm()">Clear</button>
+
+              <div id="topicStatus" class="status"></div>
+            </div>
+
+            <div class="card">
+              <h3>Weeks / Topics List</h3>
+              <div id="topicsTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="pageQuestions" class="admin-page">
+          <div class="admin-grid">
+            <div class="card">
+              <h3>Add / Edit Question</h3>
+
+              <input type="hidden" id="questionId" />
+
+              <div class="form-row">
+                <label>Module</label>
+                <select id="questionModule" onchange="renderQuestionTopicSelect()"></select>
+              </div>
+
+              <div class="form-row">
+                <label>Week / Topic</label>
+                <select id="questionTopic"></select>
+              </div>
+
+              <div class="form-row">
+                <label>Question</label>
+                <textarea id="questionText" placeholder="Type the question here..."></textarea>
+              </div>
+
+              <div class="form-row">
+                <label>Answer</label>
+                <textarea id="answerText" placeholder="Type the answer here..."></textarea>
+              </div>
+
+              <div class="form-row">
+                <label>Picture</label>
+                <input id="questionImageFile" type="file" accept="image/*" />
+                <button style="margin-top:8px;" onclick="uploadQuestionImage()">Upload Picture</button>
+              </div>
+
+              <div class="form-row">
+                <label>Image URL</label>
+                <input id="questionImageUrl" placeholder="Upload picture or paste image URL" />
+              </div>
+
+              <div class="form-row">
+                <label>Tags</label>
+                <input id="questionTags" placeholder="Example: formula, definition, week 1" />
+              </div>
+
+              <div class="form-row">
+                <label>Sort Order</label>
+                <input id="questionSort" type="number" value="1" />
+              </div>
+
+              <div class="form-row">
+                <label>
+                  <input id="questionActive" type="checkbox" checked style="width:auto;" />
+                  Active
+                </label>
+              </div>
+
+              <button class="primary" onclick="saveQuestionForm()">Save Question</button>
+              <button onclick="clearQuestionForm()">Clear</button>
+
+              <div id="questionStatus" class="status"></div>
+            </div>
+
+            <div class="card">
+              <h3>Questions List</h3>
+              <div class="form-row">
+                <input id="adminQuestionSearch" placeholder="Search questions..." oninput="renderAdminQuestions()" />
+              </div>
+              <div id="questionsTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="pageNotes" class="admin-page">
+          <div class="admin-grid">
+            <div class="card">
+              <h3>Add / Edit Short Note</h3>
+
+              <input type="hidden" id="noteId" />
+
+              <div class="form-row">
+                <label>Module</label>
+                <select id="noteModule" onchange="renderNoteTopicSelect()"></select>
+              </div>
+
+              <div class="form-row">
+                <label>Week / Topic</label>
+                <select id="noteTopic"></select>
+                <span class="muted">Choose “Module General Note” if this note is for the whole module.</span>
+              </div>
+
+              <div class="form-row">
+                <label>Note Title</label>
+                <input id="noteTitle" placeholder="Example: Important formulas" />
+              </div>
+
+              <div class="form-row">
+                <label>Short Note</label>
+                <textarea id="shortNoteText" placeholder="Write short note here..."></textarea>
+              </div>
+
+              <div class="form-row">
+                <label>Picture</label>
+                <input id="noteImageFile" type="file" accept="image/*" />
+                <button style="margin-top:8px;" onclick="uploadNoteImage()">Upload Picture</button>
+              </div>
+
+              <div class="form-row">
+                <label>Image URL</label>
+                <input id="noteImageUrl" placeholder="Upload picture or paste image URL" />
+              </div>
+
+              <div class="form-row">
+                <label>Sort Order</label>
+                <input id="noteSort" type="number" value="1" />
+              </div>
+
+              <div class="form-row">
+                <label>
+                  <input id="noteActive" type="checkbox" checked style="width:auto;" />
+                  Active
+                </label>
+              </div>
+
+              <button class="primary" onclick="saveShortNoteForm()">Save Short Note</button>
+              <button onclick="clearShortNoteForm()">Clear</button>
+
+              <div id="noteStatus" class="status"></div>
+            </div>
+
+            <div class="card">
+              <h3>Short Notes List</h3>
+              <div class="form-row">
+                <input id="adminNoteSearch" placeholder="Search short notes..." oninput="renderAdminNotes()" />
+              </div>
+              <div id="notesTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="pageSettings" class="admin-page">
+          <div class="card">
+            <h3>Change Admin Password</h3>
+
+            <div class="form-row">
+              <label>New Password</label>
+              <input id="newAdminPassword" type="password" placeholder="Minimum 6 characters" />
+            </div>
+
+            <button class="success" onclick="changePassword()">Change Password</button>
+            <div id="passwordStatus" class="status"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwgg-hQhihbmHq26j6-lBwT60JKS8W2jnbkVcVJJ0CVA5ga01J8CvfC8KrynuaSrhRfpQ/exec';
+
+    let appData = {
+      modules: [],
+      topics: [],
+      questions: [],
+      notes: []
+    };
+
+    let adminData = {
+      modules: [],
+      topics: [],
+      questions: [],
+      notes: []
+    };
+
+    let selectedModule = 'ALL';
+    let selectedTopic = 'ALL';
+    let adminToken = localStorage.getItem('baf13AdminToken') || '';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadPublic();
+
+      if (adminToken) {
+        document.getElementById('adminSection').style.display = 'block';
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('adminBox').classList.remove('hidden');
+
+        try {
+          await refreshAdmin();
+        } catch (err) {
+          logout();
+        }
+      }
+    });
+
+    function jsonp(action, params = {}) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
+        const url = new URL(API_URL);
+        url.searchParams.set('action', action);
+        url.searchParams.set('callback', callbackName);
+
+        Object.keys(params).forEach(key => {
+          url.searchParams.set(key, params[key]);
+        });
+
+        const script = document.createElement('script');
+
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error('Request timed out.'));
+        }, 30000);
+
+        window[callbackName] = data => {
+          cleanup();
+
+          if (!data || data.success === false) {
+            reject(new Error(data && data.error ? data.error : 'Request failed.'));
+            return;
+          }
+
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error('Could not connect to backend.'));
+        };
+
+        script.src = url.toString();
+        document.body.appendChild(script);
+
+        function cleanup() {
+          clearTimeout(timer);
+          delete window[callbackName];
+
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+        }
+      });
+    }
+
+    function postAction(action, fields = {}) {
+      return new Promise((resolve, reject) => {
+        const requestId = 'req_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const iframeName = 'iframe_' + requestId;
+
+        const iframe = document.createElement('iframe');
+        iframe.name = iframeName;
+        iframe.style.display = 'none';
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = API_URL;
+        form.target = iframeName;
+        form.style.display = 'none';
+
+        const allFields = {
+          action,
+          returnType: 'postMessage',
+          requestId,
+          origin: window.location.origin,
+          ...fields
+        };
+
+        Object.keys(allFields).forEach(key => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = allFields[key] == null ? '' : String(allFields[key]);
+          form.appendChild(input);
+        });
+
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error('Request timed out.'));
+        }, 60000);
+
+        function onMessage(event) {
+          const message = event.data;
+
+          if (!message || message.source !== 'BAF13_ZIKURA_API') return;
+          if (message.requestId !== requestId) return;
+
+          cleanup();
+
+          const data = message.data;
+
+          if (!data || data.success === false) {
+            reject(new Error(data && data.error ? data.error : 'Request failed.'));
+            return;
+          }
+
+          resolve(data);
+        }
+
+        function cleanup() {
+          clearTimeout(timer);
+          window.removeEventListener('message', onMessage);
+
+          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+          if (form.parentNode) form.parentNode.removeChild(form);
+        }
+
+        window.addEventListener('message', onMessage);
+
+        document.body.appendChild(iframe);
+        document.body.appendChild(form);
+        form.submit();
+      });
+    }
+
+    async function loadPublic() {
+      try {
+        document.getElementById('loadingBox').classList.remove('hidden');
+
+        const data = await jsonp('getPublicData');
+
+        appData = data;
+
+        document.getElementById('appTitle').textContent = data.appName || 'BAF13 - ZIKURA';
+        document.getElementById('loadingBox').classList.add('hidden');
+
+        renderPublic();
+      } catch (err) {
+        document.getElementById('loadingBox').innerHTML =
+          'Error loading app: ' + esc(err.message || err);
+      }
+    }
+
+    function renderPublic() {
+      renderModuleTabs();
+      renderTopicTabs();
+      renderNotes();
+      renderQuestions();
+    }
+
+    function renderModuleTabs() {
+      const el = document.getElementById('moduleTabs');
+
+      let html = `
+        <button class="${selectedModule === 'ALL' ? 'active-tab' : ''}" onclick="selectModule('ALL')">
+          All Modules
+        </button>
+      `;
+
+      appData.modules.forEach(m => {
+        html += `
+          <button class="${selectedModule === String(m.ModuleID) ? 'active-tab' : ''}"
+                  onclick="selectModule('${escAttr(m.ModuleID)}')">
+            ${esc(m.ModuleID)} - ${esc(m.ModuleName)}
+          </button>
+        `;
+      });
+
+      el.innerHTML = html;
+    }
+
+    function renderTopicTabs() {
+      const el = document.getElementById('topicTabs');
+
+      if (selectedModule === 'ALL') {
+        selectedTopic = 'ALL';
+        el.innerHTML = '';
+        return;
+      }
+
+      const topics = appData.topics.filter(t => String(t.ModuleID) === String(selectedModule));
+
+      let html = `
+        <button class="${selectedTopic === 'ALL' ? 'active-tab' : ''}" onclick="selectTopic('ALL')">
+          All Weeks / Topics
+        </button>
+      `;
+
+      topics.forEach(t => {
+        html += `
+          <button class="${selectedTopic === String(t.TopicID) ? 'active-tab' : ''}"
+                  onclick="selectTopic('${escAttr(t.TopicID)}')">
+            ${esc(t.TopicName)}
+          </button>
+        `;
+      });
+
+      el.innerHTML = html;
+    }
+
+    function selectModule(moduleId) {
+      selectedModule = moduleId;
+      selectedTopic = 'ALL';
+      renderPublic();
+    }
+
+    function selectTopic(topicId) {
+      selectedTopic = topicId;
+      renderPublic();
+    }
+
+    function renderNotes() {
+      const el = document.getElementById('notesSection');
+
+      if (selectedModule === 'ALL') {
+        el.innerHTML = '';
+        return;
+      }
+
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let notes = appData.notes.filter(n => String(n.ModuleID) === String(selectedModule));
+
+      if (selectedTopic !== 'ALL') {
+        notes = notes.filter(n => {
+          const topicId = String(n.TopicID || '').trim();
+          return topicId === '' || topicId === String(selectedTopic);
+        });
+      }
+
+      if (search) {
+        notes = notes.filter(n => {
+          const combined = [
+            n.NoteTitle,
+            n.ShortNote,
+            getModuleName(n.ModuleID),
+            getTopicName(n.TopicID)
+          ].join(' ').toLowerCase();
+
+          return combined.includes(search);
+        });
+      }
+
+      if (notes.length === 0) {
+        el.innerHTML = '';
+        return;
+      }
+
+      el.innerHTML = `
+        <h2 class="section-title">Short Notes</h2>
+        ${notes.map(n => {
+          const img = n.ImageUrl
+            ? `<img class="main-img" src="${escAttr(n.ImageUrl)}" alt="Short note image" />`
+            : '';
+
+          const topicLabel = n.TopicID ? ' / ' + esc(getTopicName(n.TopicID)) : ' / Module General';
+
+          return `
+            <div class="card">
+              <div class="muted">${esc(getModuleName(n.ModuleID))}${topicLabel}</div>
+              <h3>${esc(n.NoteTitle)}</h3>
+              <div class="note-body">${nl2br(esc(n.ShortNote))}</div>
+              ${img}
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+
+    function renderQuestions() {
+      const el = document.getElementById('questionsList');
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let questions = appData.questions || [];
+
+      if (selectedModule !== 'ALL') {
+        questions = questions.filter(q => String(q.ModuleID) === String(selectedModule));
+      }
+
+      if (selectedTopic !== 'ALL') {
+        questions = questions.filter(q => String(q.TopicID) === String(selectedTopic));
+      }
+
+      if (search) {
+        questions = questions.filter(q => {
+          const combined = [
+            q.Question,
+            q.Answer,
+            q.Tags,
+            getModuleName(q.ModuleID),
+            getTopicName(q.TopicID)
+          ].join(' ').toLowerCase();
+
+          return combined.includes(search);
+        });
+      }
+
+      document.getElementById('questionCount').textContent = questions.length + ' Q&A';
+
+      if (questions.length === 0) {
+        el.innerHTML = '<div class="card">No questions found.</div>';
+        return;
+      }
+
+      el.innerHTML = questions.map((q, index) => {
+        const img = q.ImageUrl
+          ? `<img class="main-img" src="${escAttr(q.ImageUrl)}" alt="Question image" />`
+          : '';
+
+        const tags = q.Tags ? `<div class="pill">${esc(q.Tags)}</div>` : '';
+
+        return `
+          <div class="card">
+            <div class="muted">${esc(getModuleName(q.ModuleID))} / ${esc(getTopicName(q.TopicID))}</div>
+            <div class="question-title">${index + 1}. ${nl2br(esc(q.Question))}</div>
+            ${img}
+            ${tags}
+            <div style="margin-top:12px;">
+              <button class="primary" onclick="toggleAnswer('${escAttr(q.QuestionID)}')">
+                Show / Hide Answer
+              </button>
+            </div>
+            <div class="answer" id="ans_${escAttr(q.QuestionID)}">
+              ${nl2br(esc(q.Answer))}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleAnswer(id) {
+      const el = document.getElementById('ans_' + id);
+      if (el) el.classList.toggle('show');
+    }
+
+    function showAllAnswers() {
+      document.querySelectorAll('.answer').forEach(el => el.classList.add('show'));
+    }
+
+    function hideAllAnswers() {
+      document.querySelectorAll('.answer').forEach(el => el.classList.remove('show'));
+    }
+
+    function toggleAdmin() {
+      const el = document.getElementById('adminSection');
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    async function login() {
+      setStatus('loginStatus', '', '');
+
+      try {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        const data = await postAction('loginAdmin', {
+          username,
+          password
+        });
+
+        adminToken = data.token;
+        localStorage.setItem('baf13AdminToken', adminToken);
+
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('adminBox').classList.remove('hidden');
+
+        await refreshAdmin();
+      } catch (err) {
+        setStatus('loginStatus', err.message || String(err), 'err');
+      }
+    }
+
+    function logout() {
+      adminToken = '';
+      localStorage.removeItem('baf13AdminToken');
+
+      document.getElementById('loginBox').classList.remove('hidden');
+      document.getElementById('adminBox').classList.add('hidden');
+    }
+
+    async function refreshAdmin() {
+      adminData = await postAction('getAdminData', {
+        token: adminToken
+      });
+
+      renderAdminSelects();
+      renderAdminModules();
+      renderAdminTopics();
+      renderAdminQuestions();
+      renderAdminNotes();
+
+      await loadPublic();
+    }
+
+    function showAdminPage(name) {
+      ['Modules', 'Topics', 'Questions', 'Notes', 'Settings'].forEach(page => {
+        document.getElementById('page' + page).classList.remove('active');
+        document.getElementById('tab' + page).classList.remove('active-tab');
+      });
+
+      document.getElementById('page' + name).classList.add('active');
+      document.getElementById('tab' + name).classList.add('active-tab');
+    }
+
+    function renderAdminSelects() {
+      const moduleOptions = adminData.modules.map(m => `
+        <option value="${escAttr(m.ModuleID)}">${esc(m.ModuleID)} - ${esc(m.ModuleName)}</option>
+      `).join('');
+
+      document.getElementById('topicModule').innerHTML = moduleOptions;
+      document.getElementById('questionModule').innerHTML = moduleOptions;
+      document.getElementById('noteModule').innerHTML = moduleOptions;
+
+      renderQuestionTopicSelect();
+      renderNoteTopicSelect();
+    }
+
+    function renderQuestionTopicSelect() {
+      const moduleId = document.getElementById('questionModule').value;
+      const topics = adminData.topics.filter(t => String(t.ModuleID) === String(moduleId));
+
+      document.getElementById('questionTopic').innerHTML = topics.map(t => `
+        <option value="${escAttr(t.TopicID)}">${esc(t.TopicName)}</option>
+      `).join('');
+    }
+
+    function renderNoteTopicSelect() {
+      const moduleId = document.getElementById('noteModule').value;
+      const topics = adminData.topics.filter(t => String(t.ModuleID) === String(moduleId));
+
+      let html = `<option value="">Module General Note</option>`;
+
+      html += topics.map(t => `
+        <option value="${escAttr(t.TopicID)}">${esc(t.TopicName)}</option>
+      `).join('');
+
+      document.getElementById('noteTopic').innerHTML = html;
+    }
+
+    async function saveModuleForm() {
+      setStatus('moduleStatus', '', '');
+
+      try {
+        const payload = {
+          ModuleID: document.getElementById('moduleId').value,
+          ModuleName: document.getElementById('moduleName').value,
+          SortOrder: document.getElementById('moduleSort').value,
+          IsActive: document.getElementById('moduleActive').checked
+        };
+
+        adminData = await postAction('saveModule', {
+          token: adminToken,
+          payload: JSON.stringify(payload)
+        });
+
+        clearModuleForm();
+        renderAdminSelects();
+        renderAdminModules();
+        await loadPublic();
+
+        setStatus('moduleStatus', 'Module saved.', 'ok');
+      } catch (err) {
+        setStatus('moduleStatus', err.message || String(err), 'err');
+      }
+    }
+
+    function editModule(m) {
+      document.getElementById('moduleId').value = m.ModuleID || '';
+      document.getElementById('moduleName').value = m.ModuleName || '';
+      document.getElementById('moduleSort').value = m.SortOrder || 1;
+      document.getElementById('moduleActive').checked = String(m.IsActive).toLowerCase() !== 'false';
+      showAdminPage('Modules');
+    }
+
+    function clearModuleForm() {
+      document.getElementById('moduleId').value = '';
+      document.getElementById('moduleName').value = '';
+      document.getElementById('moduleSort').value = 1;
+      document.getElementById('moduleActive').checked = true;
+    }
+
+    async function deleteModuleConfirm(moduleId) {
+      if (!confirm('Delete this module? This will also delete its weeks, questions, and notes.')) return;
+
+      try {
+        adminData = await postAction('deleteModule', {
+          token: adminToken,
+          moduleId
+        });
+
+        renderAdminSelects();
+        renderAdminModules();
+        renderAdminTopics();
+        renderAdminQuestions();
+        renderAdminNotes();
+        await loadPublic();
+      } catch (err) {
+        alert(err.message || err);
+      }
+    }
+
+    function renderAdminModules() {
+      const el = document.getElementById('modulesTable');
+
+      if (!adminData.modules.length) {
+        el.innerHTML = '<p>No modules yet.</p>';
+        return;
+      }
+
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Sort</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${adminData.modules.map(m => `
+              <tr>
+                <td><strong>${esc(m.ModuleID)}</strong><br>${esc(m.ModuleName)}</td>
+                <td>${esc(m.SortOrder)}</td>
+                <td>${esc(m.IsActive)}</td>
+                <td>
+                  <div class="small-actions">
+                    <button onclick='editModule(${jsonAttr(m)})'>Edit</button>
+                    <button class="danger" onclick="deleteModuleConfirm('${escAttr(m.ModuleID)}')">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function saveTopicForm() {
+      setStatus('topicStatus', '', '');
+
+      try {
+        const payload = {
+          TopicID: document.getElementById('topicId').value,
+          ModuleID: document.getElementById('topicModule').value,
+          TopicName: document.getElementById('topicName').value,
+          SortOrder: document.getElementById('topicSort').value,
+          IsActive: document.getElementById('topicActive').checked
+        };
+
+        adminData = await postAction('saveTopic', {
+          token: adminToken,
+          payload: JSON.stringify(payload)
+        });
+
+        clearTopicForm();
+        renderAdminSelects();
+        renderAdminTopics();
+        await loadPublic();
+
+        setStatus('topicStatus', 'Week / Topic saved.', 'ok');
+      } catch (err) {
+        setStatus('topicStatus', err.message || String(err), 'err');
+      }
+    }
+
+    function editTopic(t) {
+      document.getElementById('topicId').value = t.TopicID || '';
+      document.getElementById('topicModule').value = t.ModuleID || '';
+      document.getElementById('topicName').value = t.TopicName || '';
+      document.getElementById('topicSort').value = t.SortOrder || 1;
+      document.getElementById('topicActive').checked = String(t.IsActive).toLowerCase() !== 'false';
+      showAdminPage('Topics');
+    }
+
+    function clearTopicForm() {
+      document.getElementById('topicId').value = '';
+      document.getElementById('topicName').value = '';
+      document.getElementById('topicSort').value = 1;
+      document.getElementById('topicActive').checked = true;
+    }
+
+    async function deleteTopicConfirm(topicId) {
+      if (!confirm('Delete this week/topic? Its questions and related notes will also be deleted.')) return;
+
+      try {
+        adminData = await postAction('deleteTopic', {
+          token: adminToken,
+          topicId
+        });
+
+        renderAdminSelects();
+        renderAdminTopics();
+        renderAdminQuestions();
+        renderAdminNotes();
+        await loadPublic();
+      } catch (err) {
+        alert(err.message || err);
+      }
+    }
+
+    function renderAdminTopics() {
+      const el = document.getElementById('topicsTable');
+
+      if (!adminData.topics.length) {
+        el.innerHTML = '<p>No weeks/topics yet.</p>';
+        return;
+      }
+
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Week / Topic</th>
+              <th>Module</th>
+              <th>Sort</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${adminData.topics.map(t => `
+              <tr>
+                <td><strong>${esc(t.TopicName)}</strong><br><span class="muted">${esc(t.TopicID)}</span></td>
+                <td>${esc(getModuleNameFrom(adminData.modules, t.ModuleID))}</td>
+                <td>${esc(t.SortOrder)}</td>
+                <td>${esc(t.IsActive)}</td>
+                <td>
+                  <div class="small-actions">
+                    <button onclick='editTopic(${jsonAttr(t)})'>Edit</button>
+                    <button class="danger" onclick="deleteTopicConfirm('${escAttr(t.TopicID)}')">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function saveQuestionForm() {
+      setStatus('questionStatus', '', '');
+
+      try {
+        const payload = {
+          QuestionID: document.getElementById('questionId').value,
+          ModuleID: document.getElementById('questionModule').value,
+          TopicID: document.getElementById('questionTopic').value,
+          Question: document.getElementById('questionText').value,
+          Answer: document.getElementById('answerText').value,
+          ImageUrl: document.getElementById('questionImageUrl').value,
+          Tags: document.getElementById('questionTags').value,
+          SortOrder: document.getElementById('questionSort').value,
+          IsActive: document.getElementById('questionActive').checked
+        };
+
+        adminData = await postAction('saveQuestion', {
+          token: adminToken,
+          payload: JSON.stringify(payload)
+        });
+
+        clearQuestionForm();
+        renderAdminQuestions();
+        await loadPublic();
+
+        setStatus('questionStatus', 'Question saved.', 'ok');
+      } catch (err) {
+        setStatus('questionStatus', err.message || String(err), 'err');
+      }
+    }
+
+    function editQuestion(q) {
+      document.getElementById('questionId').value = q.QuestionID || '';
+      document.getElementById('questionModule').value = q.ModuleID || '';
+      renderQuestionTopicSelect();
+      document.getElementById('questionTopic').value = q.TopicID || '';
+      document.getElementById('questionText').value = q.Question || '';
+      document.getElementById('answerText').value = q.Answer || '';
+      document.getElementById('questionImageUrl').value = q.ImageUrl || '';
+      document.getElementById('questionTags').value = q.Tags || '';
+      document.getElementById('questionSort').value = q.SortOrder || 1;
+      document.getElementById('questionActive').checked = String(q.IsActive).toLowerCase() !== 'false';
+      showAdminPage('Questions');
+    }
+
+    function clearQuestionForm() {
+      document.getElementById('questionId').value = '';
+      document.getElementById('questionText').value = '';
+      document.getElementById('answerText').value = '';
+      document.getElementById('questionImageUrl').value = '';
+      document.getElementById('questionTags').value = '';
+      document.getElementById('questionSort').value = 1;
+      document.getElementById('questionActive').checked = true;
+      document.getElementById('questionImageFile').value = '';
+      renderQuestionTopicSelect();
+    }
+
+    async function deleteQuestionConfirm(questionId) {
+      if (!confirm('Delete this question?')) return;
+
+      try {
+        adminData = await postAction('deleteQuestion', {
+          token: adminToken,
+          questionId
+        });
+
+        renderAdminQuestions();
+        await loadPublic();
+      } catch (err) {
+        alert(err.message || err);
+      }
+    }
+
+    function renderAdminQuestions() {
+      const el = document.getElementById('questionsTable');
+      const search = document.getElementById('adminQuestionSearch').value.trim().toLowerCase();
+
+      let list = adminData.questions || [];
+
+      if (search) {
+        list = list.filter(q => {
+          const combined = [
+            q.Question,
+            q.Answer,
+            q.Tags,
+            getModuleNameFrom(adminData.modules, q.ModuleID),
+            getTopicNameFrom(adminData.topics, q.TopicID)
+          ].join(' ').toLowerCase();
+
+          return combined.includes(search);
+        });
+      }
+
+      if (!list.length) {
+        el.innerHTML = '<p>No questions yet.</p>';
+        return;
+      }
+
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Module</th>
+              <th>Week / Topic</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(q => `
+              <tr>
+                <td>
+                  <strong>${esc(shortText(q.Question, 80))}</strong><br>
+                  <span class="muted">${esc(shortText(q.Answer, 100))}</span>
+                </td>
+                <td>${esc(getModuleNameFrom(adminData.modules, q.ModuleID))}</td>
+                <td>${esc(getTopicNameFrom(adminData.topics, q.TopicID))}</td>
+                <td>${esc(q.IsActive)}</td>
+                <td>
+                  <div class="small-actions">
+                    <button onclick='editQuestion(${jsonAttr(q)})'>Edit</button>
+                    <button class="danger" onclick="deleteQuestionConfirm('${escAttr(q.QuestionID)}')">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function saveShortNoteForm() {
+      setStatus('noteStatus', '', '');
+
+      try {
+        const payload = {
+          NoteID: document.getElementById('noteId').value,
+          ModuleID: document.getElementById('noteModule').value,
+          TopicID: document.getElementById('noteTopic').value,
+          NoteTitle: document.getElementById('noteTitle').value,
+          ShortNote: document.getElementById('shortNoteText').value,
+          ImageUrl: document.getElementById('noteImageUrl').value,
+          SortOrder: document.getElementById('noteSort').value,
+          IsActive: document.getElementById('noteActive').checked
+        };
+
+        adminData = await postAction('saveShortNote', {
+          token: adminToken,
+          payload: JSON.stringify(payload)
+        });
+
+        clearShortNoteForm();
+        renderAdminNotes();
+        await loadPublic();
+
+        setStatus('noteStatus', 'Short note saved.', 'ok');
+      } catch (err) {
+        setStatus('noteStatus', err.message || String(err), 'err');
+      }
+    }
+
+    function editShortNote(n) {
+      document.getElementById('noteId').value = n.NoteID || '';
+      document.getElementById('noteModule').value = n.ModuleID || '';
+      renderNoteTopicSelect();
+      document.getElementById('noteTopic').value = n.TopicID || '';
+      document.getElementById('noteTitle').value = n.NoteTitle || '';
+      document.getElementById('shortNoteText').value = n.ShortNote || '';
+      document.getElementById('noteImageUrl').value = n.ImageUrl || '';
+      document.getElementById('noteSort').value = n.SortOrder || 1;
+      document.getElementById('noteActive').checked = String(n.IsActive).toLowerCase() !== 'false';
+      showAdminPage('Notes');
+    }
+
+    function clearShortNoteForm() {
+      document.getElementById('noteId').value = '';
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('shortNoteText').value = '';
+      document.getElementById('noteImageUrl').value = '';
+      document.getElementById('noteSort').value = 1;
+      document.getElementById('noteActive').checked = true;
+      document.getElementById('noteImageFile').value = '';
+      renderNoteTopicSelect();
+    }
+
+    async function deleteShortNoteConfirm(noteId) {
+      if (!confirm('Delete this short note?')) return;
+
+      try {
+        adminData = await postAction('deleteShortNote', {
+          token: adminToken,
+          noteId
+        });
+
+        renderAdminNotes();
+        await loadPublic();
+      } catch (err) {
+        alert(err.message || err);
+      }
+    }
+
+    function renderAdminNotes() {
+      const el = document.getElementById('notesTable');
+      const search = document.getElementById('adminNoteSearch').value.trim().toLowerCase();
+
+      let list = adminData.notes || [];
+
+      if (search) {
+        list = list.filter(n => {
+          const combined = [
+            n.NoteTitle,
+            n.ShortNote,
+            getModuleNameFrom(adminData.modules, n.ModuleID),
+            getTopicNameFrom(adminData.topics, n.TopicID)
+          ].join(' ').toLowerCase();
+
+          return combined.includes(search);
+        });
+      }
+
+      if (!list.length) {
+        el.innerHTML = '<p>No short notes yet.</p>';
+        return;
+      }
+
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Note</th>
+              <th>Module</th>
+              <th>Week / Topic</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(n => `
+              <tr>
+                <td>
+                  <strong>${esc(shortText(n.NoteTitle, 80))}</strong><br>
+                  <span class="muted">${esc(shortText(n.ShortNote, 100))}</span>
+                </td>
+                <td>${esc(getModuleNameFrom(adminData.modules, n.ModuleID))}</td>
+                <td>${n.TopicID ? esc(getTopicNameFrom(adminData.topics, n.TopicID)) : 'Module General'}</td>
+                <td>${esc(n.IsActive)}</td>
+                <td>
+                  <div class="small-actions">
+                    <button onclick='editShortNote(${jsonAttr(n)})'>Edit</button>
+                    <button class="danger" onclick="deleteShortNoteConfirm('${escAttr(n.NoteID)}')">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function uploadQuestionImage() {
+      await uploadImageCommon('questionImageFile', 'questionImageUrl', 'questionStatus');
+    }
+
+    async function uploadNoteImage() {
+      await uploadImageCommon('noteImageFile', 'noteImageUrl', 'noteStatus');
+    }
+
+    async function uploadImageCommon(fileInputId, urlInputId, statusId) {
+      setStatus(statusId, '', '');
+
+      try {
+        const file = document.getElementById(fileInputId).files[0];
+
+        if (!file) {
+          setStatus(statusId, 'Select an image first.', 'err');
+          return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+          setStatus(statusId, 'Image is too large. Use image below 2MB.', 'err');
+          return;
+        }
+
+        const dataUrl = await fileToDataUrl(file);
+
+        const payload = {
+          dataUrl,
+          fileName: file.name
+        };
+
+        const res = await postAction('uploadImage', {
+          token: adminToken,
+          payload: JSON.stringify(payload)
+        });
+
+        document.getElementById(urlInputId).value = res.imageUrl;
+        setStatus(statusId, 'Picture uploaded.', 'ok');
+      } catch (err) {
+        setStatus(statusId, err.message || String(err), 'err');
+      }
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function changePassword() {
+      setStatus('passwordStatus', '', '');
+
+      try {
+        const newPassword = document.getElementById('newAdminPassword').value;
+
+        const res = await postAction('changeAdminPassword', {
+          token: adminToken,
+          newPassword
+        });
+
+        document.getElementById('newAdminPassword').value = '';
+        setStatus('passwordStatus', res.message || 'Password changed.', 'ok');
+      } catch (err) {
+        setStatus('passwordStatus', err.message || String(err), 'err');
+      }
+    }
+
+    function getModuleName(moduleId) {
+      return getModuleNameFrom(appData.modules, moduleId);
+    }
+
+    function getTopicName(topicId) {
+      return getTopicNameFrom(appData.topics, topicId);
+    }
+
+    function getModuleNameFrom(modules, moduleId) {
+      const m = modules.find(x => String(x.ModuleID) === String(moduleId));
+      return m ? `${m.ModuleID} - ${m.ModuleName}` : moduleId || '';
+    }
+
+    function getTopicNameFrom(topics, topicId) {
+      const t = topics.find(x => String(x.TopicID) === String(topicId));
+      return t ? t.TopicName : topicId || '';
+    }
+
+    function setStatus(id, message, type) {
+      const el = document.getElementById(id);
+      el.className = 'status';
+
+      if (!message) {
+        el.textContent = '';
+        return;
+      }
+
+      el.textContent = message;
+      el.classList.add(type);
+    }
+
+    function esc(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function escAttr(value) {
+      return esc(value).replaceAll('\n', ' ');
+    }
+
+    function nl2br(value) {
+      return String(value).replaceAll('\n', '<br>');
+    }
+
+    function shortText(value, limit) {
+      value = String(value || '');
+      return value.length > limit ? value.substring(0, limit) + '...' : value;
+    }
+
+    function jsonAttr(obj) {
+      return JSON.stringify(obj)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll("'", '&#039;');
+    }
+  </script>
+</body>
+</html>
