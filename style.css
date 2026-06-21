@@ -556,3 +556,176 @@ button {
     padding: 12px;
   }
 }
+/* ===== FORCE MOBILE FIX ===== */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app-header {
+  width: 100%;
+  max-width: 100%;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+}
+
+.view,
+.active-view,
+#homeView,
+#notesView,
+#adminView {
+  width: 100%;
+  max-width: 100%;
+}
+
+.top-search-card,
+.stats-card,
+.qa-card,
+.card {
+  width: 100%;
+  max-width: 100%;
+}
+
+#questionsList,
+#notesSection,
+#qaList,
+#randomQuestionBox {
+  width: 100%;
+  max-width: 100%;
+}
+
+.question-title,
+.answer,
+.note-body,
+.meta-line {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.chip-row {
+  width: 100%;
+  max-width: 100%;
+}
+
+.bottom-nav {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Phone layout */
+@media (max-width: 650px) {
+  body {
+    padding-bottom: 76px;
+  }
+
+  .app-header {
+    padding: 13px 10px 11px;
+  }
+
+  .app-header h1 {
+    font-size: 18px;
+  }
+
+  .app-header p {
+    font-size: 11px;
+  }
+
+  .app-shell {
+    padding: 9px;
+  }
+
+  .top-search-card {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 15px;
+  }
+
+  .stats-card {
+    grid-template-columns: 1fr 1fr;
+    padding: 10px;
+  }
+
+  .stats-card div {
+    padding: 10px;
+  }
+
+  .stats-card strong {
+    font-size: 15px;
+  }
+
+  .stats-card span {
+    font-size: 10px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    margin: 14px 0 8px;
+  }
+
+  .qa-card {
+    padding: 12px;
+    border-radius: 15px;
+  }
+
+  .meta-line {
+    font-size: 12px;
+  }
+
+  .question-title {
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .answer-toggle {
+    font-size: 11px;
+    padding: 8px 11px;
+  }
+
+  .answer {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .bottom-nav {
+    height: 62px;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 6px;
+  }
+
+  .bottom-nav button {
+    font-size: 11px;
+  }
+}
+
+/* Very small phone */
+@media (max-width: 390px) {
+  .app-shell {
+    padding: 8px;
+  }
+
+  .question-title {
+    font-size: 15px;
+  }
+
+  .qa-card {
+    padding: 11px;
+  }
+
+  .chip-row button {
+    font-size: 12px;
+    padding: 8px 11px;
+  }
+}
