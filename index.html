@@ -24,49 +24,88 @@
 </head>
 
 <body>
-  <div class="floating-actions" id="floatingActions">
-    <button class="primary float-btn mobile-menu-btn" onclick="toggleFloatingMenu()">☰</button>
-
-    <div class="floating-menu" id="floatingMenu">
-      <button class="primary float-btn" onclick="openAdmin()">Admin</button>
-      <button class="float-btn" onclick="scrollToTop()">Top ↑</button>
+  <header class="app-header">
+    <div>
+      <h1 id="appTitle">BAF13 - ZIKURA</h1>
+      <p>Exam Q&A and Short Notes</p>
     </div>
-  </div>
-
-  <header>
-    <h1 id="appTitle">BAF13 - ZIKURA</h1>
-    <p>Exam Q&A and Short Notes</p>
   </header>
 
-  <div class="container">
-    <div class="topbar">
-      <div>
-        <div class="tabs" id="moduleTabs"></div>
-        <div class="tabs" id="topicTabs"></div>
+  <main class="app-shell">
+    <section id="homeView" class="view active-view">
+      <div class="top-search-card">
+        <input id="searchInput" placeholder="Search question, answer, note, tag..." oninput="renderPublic()" />
       </div>
 
-      <div class="search-row">
-        <input id="searchInput" placeholder="Search question, answer, note, or tag..." oninput="renderPublic()" />
-        <button class="ghost" onclick="openAdmin()">Admin</button>
+      <div class="chip-section">
+        <div class="chip-label">Modules</div>
+        <div class="chip-row" id="moduleTabs"></div>
       </div>
-    </div>
 
-    <div class="topbar">
-      <div>
-        <button class="primary" onclick="showAllAnswers()">Show all answers</button>
-        <button onclick="hideAllAnswers()">Hide all answers</button>
+      <div class="chip-section" id="topicChipSection">
+        <div class="chip-label">Weeks / Topics</div>
+        <div class="chip-row" id="topicTabs"></div>
       </div>
-      <span class="muted" id="questionCount"></span>
-    </div>
 
-    <div id="loadingBox" class="card">Loading...</div>
+      <div class="quick-actions">
+        <button onclick="showView('qa')">Q&A</button>
+        <button onclick="showView('notes')">Notes</button>
+        <button onclick="showRandomQuestion()">Random</button>
+        <button onclick="showAllAnswers()">Show All</button>
+      </div>
 
-    <div id="notesSection" class="grid"></div>
+      <div class="stats-card">
+        <div>
+          <strong id="questionCount">0 Q&A</strong>
+          <span>Available questions</span>
+        </div>
+        <div>
+          <strong id="noteCount">0 Notes</strong>
+          <span>Available short notes</span>
+        </div>
+      </div>
 
-    <h2 class="section-title">Q&A</h2>
-    <div id="questionsList" class="grid"></div>
+      <div id="loadingBox" class="card">Loading...</div>
 
-    <section id="adminSection" class="admin-section">
+      <h2 class="section-title">Latest Q&A</h2>
+      <div id="questionsList" class="grid"></div>
+    </section>
+
+    <section id="qaView" class="view">
+      <div class="view-head">
+        <h2>Q&A</h2>
+        <button onclick="hideAllAnswers()">Hide Answers</button>
+      </div>
+
+      <div class="top-search-card">
+        <input id="qaSearchInput" placeholder="Search Q&A..." oninput="syncSearch('qa')" />
+      </div>
+
+      <div id="qaList" class="grid"></div>
+    </section>
+
+    <section id="notesView" class="view">
+      <div class="view-head">
+        <h2>Short Notes</h2>
+      </div>
+
+      <div class="top-search-card">
+        <input id="notesSearchInput" placeholder="Search notes..." oninput="syncSearch('notes')" />
+      </div>
+
+      <div id="notesSection" class="grid"></div>
+    </section>
+
+    <section id="randomView" class="view">
+      <div class="view-head">
+        <h2>Random Question</h2>
+        <button class="primary" onclick="showRandomQuestion()">New Random</button>
+      </div>
+
+      <div id="randomQuestionBox" class="grid"></div>
+    </section>
+
+    <section id="adminView" class="view">
       <div id="loginBox" class="card login-box">
         <h2>Admin Login</h2>
 
@@ -77,16 +116,16 @@
 
         <div class="form-row">
           <label>Password</label>
-          <input id="loginPassword" type="password" placeholder="Default: admin123" />
+          <input id="loginPassword" type="password" />
         </div>
 
-        <button class="primary" onclick="login()">Login</button>
+        <button class="primary full-btn" onclick="login()">Login</button>
 
         <div id="loginStatus" class="status"></div>
       </div>
 
       <div id="adminBox" class="hidden">
-        <div class="topbar">
+        <div class="admin-header">
           <h2>Admin Panel</h2>
           <div>
             <button onclick="refreshAdmin()">Refresh</button>
@@ -96,15 +135,15 @@
 
         <div class="admin-tabs">
           <button class="active-tab" id="tabModules" onclick="showAdminPage('Modules')">Modules</button>
-          <button id="tabTopics" onclick="showAdminPage('Topics')">Weeks / Topics</button>
+          <button id="tabTopics" onclick="showAdminPage('Topics')">Weeks</button>
           <button id="tabQuestions" onclick="showAdminPage('Questions')">Q&A</button>
-          <button id="tabNotes" onclick="showAdminPage('Notes')">Short Notes</button>
+          <button id="tabNotes" onclick="showAdminPage('Notes')">Notes</button>
           <button id="tabSettings" onclick="showAdminPage('Settings')">Settings</button>
         </div>
 
         <div id="pageModules" class="admin-page active">
           <div class="admin-grid">
-            <div class="card">
+            <div class="card admin-form-card">
               <h3>Add / Edit Module</h3>
 
               <div class="form-row">
@@ -122,11 +161,9 @@
                 <input id="moduleSort" type="number" value="1" />
               </div>
 
-              <div class="form-row">
-                <label>
-                  <input id="moduleActive" type="checkbox" checked style="width:auto;" />
-                  Active
-                </label>
+              <div class="form-row inline-check">
+                <input id="moduleActive" type="checkbox" checked />
+                <label for="moduleActive">Active</label>
               </div>
 
               <button class="primary" onclick="saveModuleForm()">Save Module</button>
@@ -144,7 +181,7 @@
 
         <div id="pageTopics" class="admin-page">
           <div class="admin-grid">
-            <div class="card">
+            <div class="card admin-form-card">
               <h3>Add / Edit Week / Topic</h3>
 
               <input type="hidden" id="topicId" />
@@ -156,7 +193,7 @@
 
               <div class="form-row">
                 <label>Week / Topic Name</label>
-                <input id="topicName" placeholder="Example: Week 1 or Topic 1" />
+                <input id="topicName" placeholder="Example: Week 1" />
               </div>
 
               <div class="form-row">
@@ -164,11 +201,9 @@
                 <input id="topicSort" type="number" value="1" />
               </div>
 
-              <div class="form-row">
-                <label>
-                  <input id="topicActive" type="checkbox" checked style="width:auto;" />
-                  Active
-                </label>
+              <div class="form-row inline-check">
+                <input id="topicActive" type="checkbox" checked />
+                <label for="topicActive">Active</label>
               </div>
 
               <button class="primary" onclick="saveTopicForm()">Save Week / Topic</button>
@@ -186,7 +221,7 @@
 
         <div id="pageQuestions" class="admin-page">
           <div class="admin-grid">
-            <div class="card">
+            <div class="card admin-form-card">
               <h3>Add / Edit Question</h3>
 
               <input type="hidden" id="questionId" />
@@ -203,7 +238,6 @@
 
               <div class="form-row">
                 <label>Question</label>
-
                 <div class="math-toolbar">
                   <button type="button" onclick="insertMath('questionText', 'x²')">x²</button>
                   <button type="button" onclick="insertMath('questionText', 'x³')">x³</button>
@@ -216,17 +250,11 @@
                   <button type="button" onclick="insertMath('questionText', '\\(x^2 + y^2\\)')">x²+y²</button>
                   <button type="button" onclick="insertMath('questionText', '\\(\\frac{}{ }\\)')">Fraction</button>
                 </div>
-
                 <textarea id="questionText" placeholder="Type the question here..."></textarea>
-
-                <div class="math-hint">
-                  Examples: \(x^2\), \(\sqrt{x}\), \(\frac{1}{x}\), \(\frac{-b \pm \sqrt{b^2-4ac}}{2a}\)
-                </div>
               </div>
 
               <div class="form-row">
                 <label>Answer</label>
-
                 <div class="math-toolbar">
                   <button type="button" onclick="insertMath('answerText', 'x²')">x²</button>
                   <button type="button" onclick="insertMath('answerText', 'x³')">x³</button>
@@ -236,21 +264,15 @@
                   <button type="button" onclick="insertMath('answerText', '±')">±</button>
                   <button type="button" onclick="insertMath('answerText', '\\(\\frac{1}{x}\\)')">1/x</button>
                   <button type="button" onclick="insertMath('answerText', '\\(\\sqrt{x}\\)')">√ Math</button>
-                  <button type="button" onclick="insertMath('answerText', '\\(x^2 + y^2\\)')">x²+y²</button>
                   <button type="button" onclick="insertMath('answerText', '\\(\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\)')">Quadratic</button>
                   <button type="button" onclick="insertMath('answerText', '\\[\\begin{aligned} 3x + 2y &= 19 \\\\ x - y &= 2 \\end{aligned}\\]')">System</button>
                 </div>
-
                 <textarea id="answerText" placeholder="Type the answer here..."></textarea>
-
-                <div class="math-hint">
-                  Use \( \) for inline formulas and \[ \] for bigger formulas.
-                </div>
               </div>
 
               <div class="form-row">
                 <label>Answer Image URL</label>
-                <input id="answerImageUrl" placeholder="Paste solution/answer image URL" />
+                <input id="answerImageUrl" placeholder="Paste solution image URL" />
               </div>
 
               <div class="form-row">
@@ -260,7 +282,7 @@
 
               <div class="form-row">
                 <label>Tags</label>
-                <input id="questionTags" placeholder="Example: formula, definition, week 1" />
+                <input id="questionTags" placeholder="Example: Week 4 Q1, Case Study" />
               </div>
 
               <div class="form-row">
@@ -268,11 +290,9 @@
                 <input id="questionSort" type="number" value="1" />
               </div>
 
-              <div class="form-row">
-                <label>
-                  <input id="questionActive" type="checkbox" checked style="width:auto;" />
-                  Active
-                </label>
+              <div class="form-row inline-check">
+                <input id="questionActive" type="checkbox" checked />
+                <label for="questionActive">Active</label>
               </div>
 
               <button class="primary" onclick="saveQuestionForm()">Save Question</button>
@@ -293,7 +313,7 @@
 
         <div id="pageNotes" class="admin-page">
           <div class="admin-grid">
-            <div class="card">
+            <div class="card admin-form-card">
               <h3>Add / Edit Short Note</h3>
 
               <input type="hidden" id="noteId" />
@@ -306,7 +326,6 @@
               <div class="form-row">
                 <label>Week / Topic</label>
                 <select id="noteTopic"></select>
-                <span class="muted">Choose “Module General Note” if this note is for the whole module.</span>
               </div>
 
               <div class="form-row">
@@ -321,7 +340,7 @@
 
               <div class="form-row">
                 <label>Image URL</label>
-                <input id="noteImageUrl" placeholder="Paste Google Drive image URL or direct image URL" />
+                <input id="noteImageUrl" placeholder="Paste image URL" />
               </div>
 
               <div class="form-row">
@@ -329,11 +348,9 @@
                 <input id="noteSort" type="number" value="1" />
               </div>
 
-              <div class="form-row">
-                <label>
-                  <input id="noteActive" type="checkbox" checked style="width:auto;" />
-                  Active
-                </label>
+              <div class="form-row inline-check">
+                <input id="noteActive" type="checkbox" checked />
+                <label for="noteActive">Active</label>
               </div>
 
               <button class="primary" onclick="saveShortNoteForm()">Save Short Note</button>
@@ -367,24 +384,21 @@
         </div>
       </div>
     </section>
-  </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button onclick="showView('home')" id="navHome" class="active-nav">Home</button>
+    <button onclick="showView('qa')" id="navQa">Q&A</button>
+    <button onclick="showView('notes')" id="navNotes">Notes</button>
+    <button onclick="showView('random')" id="navRandom">Random</button>
+    <button onclick="showView('admin')" id="navAdmin">Admin</button>
+  </nav>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwgg-hQhihbmHq26j6-lBwT60JKS8W2jnbkVcVJJ0CVA5ga01J8CvfC8KrynuaSrhRfpQ/exec';
 
-    let appData = {
-      modules: [],
-      topics: [],
-      questions: [],
-      notes: []
-    };
-
-    let adminData = {
-      modules: [],
-      topics: [],
-      questions: [],
-      notes: []
-    };
+    let appData = { modules: [], topics: [], questions: [], notes: [] };
+    let adminData = { modules: [], topics: [], questions: [], notes: [] };
 
     let selectedModule = 'ALL';
     let selectedTopic = 'ALL';
@@ -394,7 +408,6 @@
       await loadPublic();
 
       if (adminToken) {
-        document.getElementById('adminSection').style.display = 'block';
         document.getElementById('loginBox').classList.add('hidden');
         document.getElementById('adminBox').classList.remove('hidden');
 
@@ -409,8 +422,8 @@
     function jsonp(action, params = {}) {
       return new Promise((resolve, reject) => {
         const callbackName = 'jsonp_cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-
         const url = new URL(API_URL);
+
         url.searchParams.set('action', action);
         url.searchParams.set('callback', callbackName);
 
@@ -447,10 +460,7 @@
         function cleanup() {
           clearTimeout(timer);
           delete window[callbackName];
-
-          if (script.parentNode) {
-            script.parentNode.removeChild(script);
-          }
+          if (script.parentNode) script.parentNode.removeChild(script);
         }
       });
     }
@@ -464,7 +474,6 @@
         document.getElementById('loadingBox').classList.remove('hidden');
 
         const data = await jsonp('getPublicData');
-
         appData = data;
 
         document.getElementById('appTitle').textContent = data.appName || 'BAF13 - ZIKURA';
@@ -472,16 +481,51 @@
 
         renderPublic();
       } catch (err) {
-        document.getElementById('loadingBox').innerHTML =
-          'Error loading app: ' + esc(err.message || err);
+        document.getElementById('loadingBox').innerHTML = 'Error loading app: ' + esc(err.message || err);
+      }
+    }
+
+    function showView(name) {
+      ['home', 'qa', 'notes', 'random', 'admin'].forEach(v => {
+        document.getElementById(v + 'View').classList.remove('active-view');
+      });
+
+      ['Home', 'Qa', 'Notes', 'Random', 'Admin'].forEach(v => {
+        const nav = document.getElementById('nav' + v);
+        if (nav) nav.classList.remove('active-nav');
+      });
+
+      document.getElementById(name + 'View').classList.add('active-view');
+
+      const navId = 'nav' + name.charAt(0).toUpperCase() + name.slice(1);
+      const nav = document.getElementById(navId);
+      if (nav) nav.classList.add('active-nav');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (name === 'qa') renderQaView();
+      if (name === 'notes') renderNotesView();
+      if (name === 'random') showRandomQuestion();
+      if (name === 'admin' && adminToken) refreshAdmin();
+    }
+
+    function syncSearch(source) {
+      if (source === 'qa') {
+        document.getElementById('searchInput').value = document.getElementById('qaSearchInput').value;
+        renderQaView();
+      }
+
+      if (source === 'notes') {
+        document.getElementById('searchInput').value = document.getElementById('notesSearchInput').value;
+        renderNotesView();
       }
     }
 
     function renderPublic() {
       renderModuleTabs();
       renderTopicTabs();
-      renderNotes();
-      renderQuestions();
+      renderHomeQuestions();
+      updateStats();
       setTimeout(renderMath, 80);
     }
 
@@ -489,16 +533,16 @@
       const el = document.getElementById('moduleTabs');
 
       let html = `
-        <button class="${selectedModule === 'ALL' ? 'active-tab' : ''}" onclick="selectModule('ALL')">
-          All Modules
+        <button class="${selectedModule === 'ALL' ? 'active-chip' : ''}" onclick="selectModule('ALL')">
+          All
         </button>
       `;
 
       appData.modules.forEach(m => {
         html += `
-          <button class="${selectedModule === String(m.ModuleID) ? 'active-tab' : ''}"
+          <button class="${selectedModule === String(m.ModuleID) ? 'active-chip' : ''}"
                   onclick="selectModule('${escAttr(m.ModuleID)}')">
-            ${esc(m.ModuleID)} - ${esc(m.ModuleName)}
+            ${esc(m.ModuleID)}
           </button>
         `;
       });
@@ -507,25 +551,29 @@
     }
 
     function renderTopicTabs() {
+      const section = document.getElementById('topicChipSection');
       const el = document.getElementById('topicTabs');
 
       if (selectedModule === 'ALL') {
         selectedTopic = 'ALL';
+        section.style.display = 'none';
         el.innerHTML = '';
         return;
       }
 
+      section.style.display = 'block';
+
       const topics = appData.topics.filter(t => String(t.ModuleID) === String(selectedModule));
 
       let html = `
-        <button class="${selectedTopic === 'ALL' ? 'active-tab' : ''}" onclick="selectTopic('ALL')">
-          All Weeks / Topics
+        <button class="${selectedTopic === 'ALL' ? 'active-chip' : ''}" onclick="selectTopic('ALL')">
+          All Weeks
         </button>
       `;
 
       topics.forEach(t => {
         html += `
-          <button class="${selectedTopic === String(t.TopicID) ? 'active-tab' : ''}"
+          <button class="${selectedTopic === String(t.TopicID) ? 'active-chip' : ''}"
                   onclick="selectTopic('${escAttr(t.TopicID)}')">
             ${esc(t.TopicName)}
           </button>
@@ -539,73 +587,18 @@
       selectedModule = moduleId;
       selectedTopic = 'ALL';
       renderPublic();
+      renderQaView();
+      renderNotesView();
     }
 
     function selectTopic(topicId) {
       selectedTopic = topicId;
       renderPublic();
+      renderQaView();
+      renderNotesView();
     }
 
-    function renderNotes() {
-      const el = document.getElementById('notesSection');
-
-      if (selectedModule === 'ALL') {
-        el.innerHTML = '';
-        return;
-      }
-
-      const search = document.getElementById('searchInput').value.trim().toLowerCase();
-
-      let notes = appData.notes.filter(n => String(n.ModuleID) === String(selectedModule));
-
-      if (selectedTopic !== 'ALL') {
-        notes = notes.filter(n => {
-          const topicId = String(n.TopicID || '').trim();
-          return topicId === '' || topicId === String(selectedTopic);
-        });
-      }
-
-      if (search) {
-        notes = notes.filter(n => {
-          const combined = [
-            n.NoteTitle,
-            n.ShortNote,
-            getModuleName(n.ModuleID),
-            getTopicName(n.TopicID)
-          ].join(' ').toLowerCase();
-
-          return combined.includes(search);
-        });
-      }
-
-      if (notes.length === 0) {
-        el.innerHTML = '';
-        return;
-      }
-
-      el.innerHTML = `
-        <h2 class="section-title">Short Notes</h2>
-        ${notes.map(n => {
-          const img = n.ImageUrl
-            ? `<img class="main-img" src="${escAttr(getImageUrl(n.ImageUrl))}" alt="Short note image" />`
-            : '';
-
-          const topicLabel = n.TopicID ? ' / ' + esc(getTopicName(n.TopicID)) : ' / Module General';
-
-          return `
-            <div class="card">
-              <div class="muted">${esc(getModuleName(n.ModuleID))}${topicLabel}</div>
-              <h3>${esc(n.NoteTitle)}</h3>
-              <div class="note-body">${nl2br(esc(n.ShortNote))}</div>
-              ${img}
-            </div>
-          `;
-        }).join('')}
-      `;
-    }
-
-    function renderQuestions() {
-      const el = document.getElementById('questionsList');
+    function getFilteredQuestions() {
       const search = document.getElementById('searchInput').value.trim().toLowerCase();
 
       let questions = appData.questions || [];
@@ -632,14 +625,102 @@
         });
       }
 
-      document.getElementById('questionCount').textContent = questions.length + ' Q&A';
+      return questions;
+    }
 
-      if (questions.length === 0) {
-        el.innerHTML = '<div class="card">No questions found.</div>';
+    function getFilteredNotes() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let notes = appData.notes || [];
+
+      if (selectedModule !== 'ALL') {
+        notes = notes.filter(n => String(n.ModuleID) === String(selectedModule));
+      }
+
+      if (selectedTopic !== 'ALL') {
+        notes = notes.filter(n => {
+          const topicId = String(n.TopicID || '').trim();
+          return topicId === '' || topicId === String(selectedTopic);
+        });
+      }
+
+      if (search) {
+        notes = notes.filter(n => {
+          const combined = [
+            n.NoteTitle,
+            n.ShortNote,
+            getModuleName(n.ModuleID),
+            getTopicName(n.TopicID)
+          ].join(' ').toLowerCase();
+
+          return combined.includes(search);
+        });
+      }
+
+      return notes;
+    }
+
+    function updateStats() {
+      const questions = getFilteredQuestions();
+      const notes = getFilteredNotes();
+
+      document.getElementById('questionCount').textContent = questions.length + ' Q&A';
+      document.getElementById('noteCount').textContent = notes.length + ' Notes';
+    }
+
+    function renderHomeQuestions() {
+      const questions = getFilteredQuestions().slice(0, 20);
+      document.getElementById('questionsList').innerHTML = renderQuestionCards(questions);
+      updateStats();
+    }
+
+    function renderQaView() {
+      const input = document.getElementById('qaSearchInput');
+      if (input) input.value = document.getElementById('searchInput').value;
+
+      const questions = getFilteredQuestions();
+      document.getElementById('qaList').innerHTML = renderQuestionCards(questions);
+
+      setTimeout(renderMath, 80);
+    }
+
+    function renderNotesView() {
+      const input = document.getElementById('notesSearchInput');
+      if (input) input.value = document.getElementById('searchInput').value;
+
+      const notes = getFilteredNotes();
+
+      if (!notes.length) {
+        document.getElementById('notesSection').innerHTML = '<div class="card empty-card">No notes found.</div>';
         return;
       }
 
-      el.innerHTML = questions.map((q, index) => {
+      document.getElementById('notesSection').innerHTML = notes.map(n => {
+        const img = n.ImageUrl
+          ? `<img class="main-img" src="${escAttr(getImageUrl(n.ImageUrl))}" alt="Short note image" />`
+          : '';
+
+        const topicLabel = n.TopicID ? getTopicName(n.TopicID) : 'Module General';
+
+        return `
+          <article class="qa-card">
+            <div class="meta-line">${esc(getModuleName(n.ModuleID))} · ${esc(topicLabel)}</div>
+            <h3 class="note-title">${esc(n.NoteTitle)}</h3>
+            <div class="note-body">${nl2br(esc(n.ShortNote))}</div>
+            ${img}
+          </article>
+        `;
+      }).join('');
+
+      setTimeout(renderMath, 80);
+    }
+
+    function renderQuestionCards(questions) {
+      if (!questions.length) {
+        return '<div class="card empty-card">No questions found.</div>';
+      }
+
+      return questions.map((q, index) => {
         const questionImg = q.ImageUrl
           ? `<img class="main-img" src="${escAttr(getImageUrl(q.ImageUrl))}" alt="Question image" />`
           : '';
@@ -648,82 +729,65 @@
           ? `<img class="main-img" src="${escAttr(getImageUrl(q.AnswerImageUrl))}" alt="Answer image" />`
           : '';
 
-        const tags = q.Tags ? `<div class="pill">${esc(q.Tags)}</div>` : '';
+        const tags = q.Tags ? `<div class="tag-line">${esc(q.Tags)}</div>` : '';
 
         return `
-          <div class="card">
-            <div class="muted">${esc(getModuleName(q.ModuleID))} / ${esc(getTopicName(q.TopicID))}</div>
-            <div class="question-title">${index + 1}. ${nl2br(esc(q.Question))}</div>
+          <article class="qa-card">
+            <div class="meta-line">${esc(getModuleName(q.ModuleID))} · ${esc(getTopicName(q.TopicID))}</div>
+            <h3 class="question-title">${index + 1}. ${nl2br(esc(q.Question))}</h3>
             ${questionImg}
             ${tags}
-            <div style="margin-top:12px;">
-              <button class="primary" onclick="toggleAnswer('${escAttr(q.QuestionID)}')">
-                Show / Hide Answer
-              </button>
-            </div>
+
+            <button class="answer-toggle" onclick="toggleAnswer('${escAttr(q.QuestionID)}')">
+              Show Answer
+            </button>
+
             <div class="answer" id="ans_${escAttr(q.QuestionID)}">
               ${nl2br(esc(q.Answer))}
               ${answerImg}
             </div>
-          </div>
+          </article>
         `;
       }).join('');
     }
 
     function toggleAnswer(id) {
       const el = document.getElementById('ans_' + id);
-      if (el) el.classList.toggle('show');
+      if (!el) return;
+
+      el.classList.toggle('show');
+
+      const btn = el.previousElementSibling;
+      if (btn && btn.classList.contains('answer-toggle')) {
+        btn.textContent = el.classList.contains('show') ? 'Hide Answer' : 'Show Answer';
+      }
 
       setTimeout(renderMath, 50);
     }
 
     function showAllAnswers() {
       document.querySelectorAll('.answer').forEach(el => el.classList.add('show'));
+      document.querySelectorAll('.answer-toggle').forEach(btn => btn.textContent = 'Hide Answer');
       setTimeout(renderMath, 50);
     }
 
     function hideAllAnswers() {
       document.querySelectorAll('.answer').forEach(el => el.classList.remove('show'));
+      document.querySelectorAll('.answer-toggle').forEach(btn => btn.textContent = 'Show Answer');
     }
 
-    function toggleAdmin() {
-      const el = document.getElementById('adminSection');
-      el.style.display = el.style.display === 'block' ? 'none' : 'block';
-    }
+    function showRandomQuestion() {
+      const list = getFilteredQuestions();
+      const box = document.getElementById('randomQuestionBox');
 
-    function openAdmin() {
-      closeFloatingMenu();
-
-      const admin = document.getElementById('adminSection');
-      admin.style.display = 'block';
-
-      admin.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-
-    function scrollToTop() {
-      closeFloatingMenu();
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
-
-    function toggleFloatingMenu() {
-      const menu = document.getElementById('floatingMenu');
-      if (menu) {
-        menu.classList.toggle('show');
+      if (!list.length) {
+        box.innerHTML = '<div class="card empty-card">No question available for this filter.</div>';
+        return;
       }
-    }
 
-    function closeFloatingMenu() {
-      const menu = document.getElementById('floatingMenu');
-      if (menu) {
-        menu.classList.remove('show');
-      }
+      const random = list[Math.floor(Math.random() * list.length)];
+      box.innerHTML = renderQuestionCards([random]);
+      setTimeout(renderMath, 80);
     }
 
     function insertMath(textareaId, text) {
@@ -734,10 +798,7 @@
       const end = textarea.selectionEnd;
       const current = textarea.value;
 
-      textarea.value =
-        current.substring(0, start) +
-        text +
-        current.substring(end);
+      textarea.value = current.substring(0, start) + text + current.substring(end);
 
       const newPos = start + text.length;
       textarea.focus();
@@ -757,10 +818,7 @@
         const username = document.getElementById('loginUsername').value;
         const password = document.getElementById('loginPassword').value;
 
-        const data = await postAction('loginAdmin', {
-          username,
-          password
-        });
+        const data = await postAction('loginAdmin', { username, password });
 
         adminToken = data.token;
         localStorage.setItem('baf13AdminToken', adminToken);
@@ -783,9 +841,7 @@
     }
 
     async function refreshAdmin() {
-      adminData = await postAction('getAdminData', {
-        token: adminToken
-      });
+      adminData = await postAction('getAdminData', { token: adminToken });
 
       renderAdminSelects();
       renderAdminModules();
@@ -887,11 +943,7 @@
       if (!confirm('Delete this module? This will also delete its weeks, questions, and notes.')) return;
 
       try {
-        adminData = await postAction('deleteModule', {
-          token: adminToken,
-          moduleId
-        });
-
+        adminData = await postAction('deleteModule', { token: adminToken, moduleId });
         renderAdminSelects();
         renderAdminModules();
         renderAdminTopics();
@@ -911,33 +963,17 @@
         return;
       }
 
-      el.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Module</th>
-              <th>Sort</th>
-              <th>Active</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${adminData.modules.map(m => `
-              <tr>
-                <td><strong>${esc(m.ModuleID)}</strong><br>${esc(m.ModuleName)}</td>
-                <td>${esc(m.SortOrder)}</td>
-                <td>${esc(m.IsActive)}</td>
-                <td>
-                  <div class="small-actions">
-                    <button onclick='editModule(${jsonAttr(m)})'>Edit</button>
-                    <button class="danger" onclick="deleteModuleConfirm('${escAttr(m.ModuleID)}')">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
+      el.innerHTML = adminData.modules.map(m => `
+        <div class="admin-list-card">
+          <strong>${esc(m.ModuleID)}</strong>
+          <span>${esc(m.ModuleName)}</span>
+          <small>Sort: ${esc(m.SortOrder)} · Active: ${esc(m.IsActive)}</small>
+          <div class="small-actions">
+            <button onclick='editModule(${jsonAttr(m)})'>Edit</button>
+            <button class="danger" onclick="deleteModuleConfirm('${escAttr(m.ModuleID)}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     async function saveTopicForm() {
@@ -988,11 +1024,7 @@
       if (!confirm('Delete this week/topic? Its questions and related notes will also be deleted.')) return;
 
       try {
-        adminData = await postAction('deleteTopic', {
-          token: adminToken,
-          topicId
-        });
-
+        adminData = await postAction('deleteTopic', { token: adminToken, topicId });
         renderAdminSelects();
         renderAdminTopics();
         renderAdminQuestions();
@@ -1011,35 +1043,17 @@
         return;
       }
 
-      el.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Week / Topic</th>
-              <th>Module</th>
-              <th>Sort</th>
-              <th>Active</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${adminData.topics.map(t => `
-              <tr>
-                <td><strong>${esc(t.TopicName)}</strong><br><span class="muted">${esc(t.TopicID)}</span></td>
-                <td>${esc(getModuleNameFrom(adminData.modules, t.ModuleID))}</td>
-                <td>${esc(t.SortOrder)}</td>
-                <td>${esc(t.IsActive)}</td>
-                <td>
-                  <div class="small-actions">
-                    <button onclick='editTopic(${jsonAttr(t)})'>Edit</button>
-                    <button class="danger" onclick="deleteTopicConfirm('${escAttr(t.TopicID)}')">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
+      el.innerHTML = adminData.topics.map(t => `
+        <div class="admin-list-card">
+          <strong>${esc(t.TopicName)}</strong>
+          <span>${esc(getModuleNameFrom(adminData.modules, t.ModuleID))}</span>
+          <small>Sort: ${esc(t.SortOrder)} · Active: ${esc(t.IsActive)}</small>
+          <div class="small-actions">
+            <button onclick='editTopic(${jsonAttr(t)})'>Edit</button>
+            <button class="danger" onclick="deleteTopicConfirm('${escAttr(t.TopicID)}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     async function saveQuestionForm() {
@@ -1105,11 +1119,7 @@
       if (!confirm('Delete this question?')) return;
 
       try {
-        adminData = await postAction('deleteQuestion', {
-          token: adminToken,
-          questionId
-        });
-
+        adminData = await postAction('deleteQuestion', { token: adminToken, questionId });
         renderAdminQuestions();
         await loadPublic();
       } catch (err) {
@@ -1142,38 +1152,17 @@
         return;
       }
 
-      el.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Question</th>
-              <th>Module</th>
-              <th>Week / Topic</th>
-              <th>Active</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${list.map(q => `
-              <tr>
-                <td>
-                  <strong>${esc(shortText(q.Question, 80))}</strong><br>
-                  <span class="muted">${esc(shortText(q.Answer, 100))}</span>
-                </td>
-                <td>${esc(getModuleNameFrom(adminData.modules, q.ModuleID))}</td>
-                <td>${esc(getTopicNameFrom(adminData.topics, q.TopicID))}</td>
-                <td>${esc(q.IsActive)}</td>
-                <td>
-                  <div class="small-actions">
-                    <button onclick='editQuestion(${jsonAttr(q)})'>Edit</button>
-                    <button class="danger" onclick="deleteQuestionConfirm('${escAttr(q.QuestionID)}')">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
+      el.innerHTML = list.map(q => `
+        <div class="admin-list-card">
+          <strong>${esc(shortText(q.Question, 90))}</strong>
+          <span>${esc(getModuleNameFrom(adminData.modules, q.ModuleID))} · ${esc(getTopicNameFrom(adminData.topics, q.TopicID))}</span>
+          <small>${esc(shortText(q.Answer, 120))}</small>
+          <div class="small-actions">
+            <button onclick='editQuestion(${jsonAttr(q)})'>Edit</button>
+            <button class="danger" onclick="deleteQuestionConfirm('${escAttr(q.QuestionID)}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     async function saveShortNoteForm() {
@@ -1233,11 +1222,7 @@
       if (!confirm('Delete this short note?')) return;
 
       try {
-        adminData = await postAction('deleteShortNote', {
-          token: adminToken,
-          noteId
-        });
-
+        adminData = await postAction('deleteShortNote', { token: adminToken, noteId });
         renderAdminNotes();
         await loadPublic();
       } catch (err) {
@@ -1269,38 +1254,17 @@
         return;
       }
 
-      el.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Note</th>
-              <th>Module</th>
-              <th>Week / Topic</th>
-              <th>Active</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${list.map(n => `
-              <tr>
-                <td>
-                  <strong>${esc(shortText(n.NoteTitle, 80))}</strong><br>
-                  <span class="muted">${esc(shortText(n.ShortNote, 100))}</span>
-                </td>
-                <td>${esc(getModuleNameFrom(adminData.modules, n.ModuleID))}</td>
-                <td>${n.TopicID ? esc(getTopicNameFrom(adminData.topics, n.TopicID)) : 'Module General'}</td>
-                <td>${esc(n.IsActive)}</td>
-                <td>
-                  <div class="small-actions">
-                    <button onclick='editShortNote(${jsonAttr(n)})'>Edit</button>
-                    <button class="danger" onclick="deleteShortNoteConfirm('${escAttr(n.NoteID)}')">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
+      el.innerHTML = list.map(n => `
+        <div class="admin-list-card">
+          <strong>${esc(n.NoteTitle)}</strong>
+          <span>${esc(getModuleNameFrom(adminData.modules, n.ModuleID))} · ${n.TopicID ? esc(getTopicNameFrom(adminData.topics, n.TopicID)) : 'Module General'}</span>
+          <small>${esc(shortText(n.ShortNote, 120))}</small>
+          <div class="small-actions">
+            <button onclick='editShortNote(${jsonAttr(n)})'>Edit</button>
+            <button class="danger" onclick="deleteShortNoteConfirm('${escAttr(n.NoteID)}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     async function changePassword() {
