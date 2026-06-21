@@ -463,7 +463,7 @@ button {
   bottom: 0;
   height: var(--bottom-height);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 2px;
   padding: 7px 7px 9px;
   background: rgba(255, 255, 255, 0.96);
