@@ -47,12 +47,7 @@
         <div class="chip-row" id="topicTabs"></div>
       </div>
 
-      <div class="quick-actions">
-        <button onclick="showView('qa')">Q&A</button>
-        <button onclick="showView('notes')">Notes</button>
-        <button onclick="showRandomQuestion()">Random</button>
-        <button onclick="showAllAnswers()">Show All</button>
-      </div>
+ 
 
       <div class="stats-card">
         <div>
@@ -387,12 +382,10 @@
   </main>
 
   <nav class="bottom-nav">
-    <button onclick="showView('home')" id="navHome" class="active-nav">Home</button>
-    <button onclick="showView('qa')" id="navQa">Q&A</button>
-    <button onclick="showView('notes')" id="navNotes">Notes</button>
-    <button onclick="showView('random')" id="navRandom">Random</button>
-    <button onclick="showView('admin')" id="navAdmin">Admin</button>
-  </nav>
+  <button onclick="showView('home')" id="navHome" class="active-nav">Home</button>
+  <button onclick="showView('notes')" id="navNotes">Notes</button>
+  <button onclick="showView('admin')" id="navAdmin">Admin</button>
+</nav>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwgg-hQhihbmHq26j6-lBwT60JKS8W2jnbkVcVJJ0CVA5ga01J8CvfC8KrynuaSrhRfpQ/exec';
@@ -486,28 +479,26 @@
     }
 
     function showView(name) {
-      ['home', 'qa', 'notes', 'random', 'admin'].forEach(v => {
-        document.getElementById(v + 'View').classList.remove('active-view');
-      });
+  ['home', 'notes', 'admin'].forEach(v => {
+    document.getElementById(v + 'View').classList.remove('active-view');
+  });
 
-      ['Home', 'Qa', 'Notes', 'Random', 'Admin'].forEach(v => {
-        const nav = document.getElementById('nav' + v);
-        if (nav) nav.classList.remove('active-nav');
-      });
+  ['Home', 'Notes', 'Admin'].forEach(v => {
+    const nav = document.getElementById('nav' + v);
+    if (nav) nav.classList.remove('active-nav');
+  });
 
-      document.getElementById(name + 'View').classList.add('active-view');
+  document.getElementById(name + 'View').classList.add('active-view');
 
-      const navId = 'nav' + name.charAt(0).toUpperCase() + name.slice(1);
-      const nav = document.getElementById(navId);
-      if (nav) nav.classList.add('active-nav');
+  const navId = 'nav' + name.charAt(0).toUpperCase() + name.slice(1);
+  const nav = document.getElementById(navId);
+  if (nav) nav.classList.add('active-nav');
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      if (name === 'qa') renderQaView();
-      if (name === 'notes') renderNotesView();
-      if (name === 'random') showRandomQuestion();
-      if (name === 'admin' && adminToken) refreshAdmin();
-    }
+  if (name === 'notes') renderNotesView();
+  if (name === 'admin' && adminToken) refreshAdmin();
+}
 
     function syncSearch(source) {
       if (source === 'qa') {
