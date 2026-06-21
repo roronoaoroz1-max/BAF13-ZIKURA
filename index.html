@@ -6,303 +6,36 @@
 
   <title>BAF13 - ZIKURA</title>
 
-  <style>
-    :root {
-      --bg: #f4f6fb;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --primary: #2563eb;
-      --danger: #dc2626;
-      --success: #16a34a;
-      --radius: 16px;
-      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-    }
+  <link rel="stylesheet" href="style.css" />
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    header {
-      padding: 26px 16px;
-      text-align: center;
-      background: linear-gradient(135deg, #1d4ed8, #0f172a);
-      color: white;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    header p {
-      margin: 8px 0 0;
-      opacity: 0.9;
-    }
-
-    .container {
-      max-width: 1150px;
-      margin: 0 auto;
-      padding: 18px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-    }
-
-    .grid {
-      display: grid;
-      gap: 14px;
-    }
-
-    .topbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 15px;
-      cursor: pointer;
-      background: #e5e7eb;
-      color: #111827;
-      font-weight: 700;
-    }
-
-    button:hover {
-      opacity: 0.92;
-    }
-
-    .primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .danger {
-      background: var(--danger);
-      color: white;
-    }
-
-    .success {
-      background: var(--success);
-      color: white;
-    }
-
-    .ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-    }
-
-    .active-tab {
-      background: var(--primary);
-      color: white;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      font-size: 15px;
-      background: white;
-    }
-
-    textarea {
-      min-height: 115px;
-      resize: vertical;
-    }
-
-    label {
-      display: block;
-      font-weight: 700;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .form-row {
-      margin-bottom: 12px;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .search-row {
-      display: flex;
-      gap: 10px;
-      flex: 1;
-      min-width: 260px;
-    }
-
-    .question-title {
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.5;
-    }
-
-    .answer {
-      display: none;
-      margin-top: 12px;
-      padding: 12px;
-      line-height: 1.6;
-      background: #f8fafc;
-      border-left: 4px solid var(--primary);
-      border-radius: 10px;
-    }
-
-    .answer.show {
-      display: block;
-    }
-
-    .main-img {
-      max-width: 100%;
-      margin-top: 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .pill {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 4px 9px;
-      background: #eef2ff;
-      color: #3730a3;
-      border-radius: 999px;
-      font-size: 12px;
-    }
-
-    .admin-section {
-      display: none;
-      margin-top: 24px;
-    }
-
-    .admin-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .admin-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .admin-page {
-      display: none;
-    }
-
-    .admin-page.active {
-      display: block;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th, td {
-      border-bottom: 1px solid var(--border);
-      padding: 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background: #f8fafc;
-    }
-
-    .small-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .small-actions button {
-      padding: 7px 10px;
-      font-size: 12px;
-    }
-
-    .status {
-      display: none;
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 14px;
-    }
-
-    .status.ok {
-      display: block;
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .status.err {
-      display: block;
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .login-box {
-      max-width: 440px;
-      margin: 0 auto 16px;
-    }
-
-    .section-title {
-      margin: 20px 0 10px;
-    }
-
-    .note-body {
-      line-height: 1.65;
-    }
-
-    @media (max-width: 850px) {
-      .admin-grid {
-        grid-template-columns: 1fr;
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
       }
+    };
+  </script>
 
-      .search-row {
-        width: 100%;
-      }
-    }
-  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 
 <body>
+  <div class="floating-actions" id="floatingActions">
+    <button class="primary float-btn mobile-menu-btn" onclick="toggleFloatingMenu()">☰</button>
+
+    <div class="floating-menu" id="floatingMenu">
+      <button class="primary float-btn" onclick="openAdmin()">Admin</button>
+      <button class="float-btn" onclick="scrollToTop()">Top ↑</button>
+    </div>
+  </div>
+
   <header>
     <h1 id="appTitle">BAF13 - ZIKURA</h1>
-    <p>Tutorial Q&A</p>
+    <p>Exam Q&A and Short Notes</p>
   </header>
 
   <div class="container">
@@ -314,7 +47,7 @@
 
       <div class="search-row">
         <input id="searchInput" placeholder="Search question, answer, note, or tag..." oninput="renderPublic()" />
-        <button class="ghost" onclick="toggleAdmin()">Admin</button>
+        <button class="ghost" onclick="openAdmin()">Admin</button>
       </div>
     </div>
 
@@ -470,12 +203,49 @@
 
               <div class="form-row">
                 <label>Question</label>
+
+                <div class="math-toolbar">
+                  <button type="button" onclick="insertMath('questionText', 'x²')">x²</button>
+                  <button type="button" onclick="insertMath('questionText', 'x³')">x³</button>
+                  <button type="button" onclick="insertMath('questionText', '√x')">√x</button>
+                  <button type="button" onclick="insertMath('questionText', '≤')">≤</button>
+                  <button type="button" onclick="insertMath('questionText', '≥')">≥</button>
+                  <button type="button" onclick="insertMath('questionText', '±')">±</button>
+                  <button type="button" onclick="insertMath('questionText', '\\(\\frac{1}{x}\\)')">1/x</button>
+                  <button type="button" onclick="insertMath('questionText', '\\(\\sqrt{x}\\)')">√ Math</button>
+                  <button type="button" onclick="insertMath('questionText', '\\(x^2 + y^2\\)')">x²+y²</button>
+                  <button type="button" onclick="insertMath('questionText', '\\(\\frac{}{ }\\)')">Fraction</button>
+                </div>
+
                 <textarea id="questionText" placeholder="Type the question here..."></textarea>
+
+                <div class="math-hint">
+                  Examples: \(x^2\), \(\sqrt{x}\), \(\frac{1}{x}\), \(\frac{-b \pm \sqrt{b^2-4ac}}{2a}\)
+                </div>
               </div>
 
               <div class="form-row">
                 <label>Answer</label>
+
+                <div class="math-toolbar">
+                  <button type="button" onclick="insertMath('answerText', 'x²')">x²</button>
+                  <button type="button" onclick="insertMath('answerText', 'x³')">x³</button>
+                  <button type="button" onclick="insertMath('answerText', '√x')">√x</button>
+                  <button type="button" onclick="insertMath('answerText', '≤')">≤</button>
+                  <button type="button" onclick="insertMath('answerText', '≥')">≥</button>
+                  <button type="button" onclick="insertMath('answerText', '±')">±</button>
+                  <button type="button" onclick="insertMath('answerText', '\\(\\frac{1}{x}\\)')">1/x</button>
+                  <button type="button" onclick="insertMath('answerText', '\\(\\sqrt{x}\\)')">√ Math</button>
+                  <button type="button" onclick="insertMath('answerText', '\\(x^2 + y^2\\)')">x²+y²</button>
+                  <button type="button" onclick="insertMath('answerText', '\\(\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\)')">Quadratic</button>
+                  <button type="button" onclick="insertMath('answerText', '\\[\\begin{aligned} 3x + 2y &= 19 \\\\ x - y &= 2 \\end{aligned}\\]')">System</button>
+                </div>
+
                 <textarea id="answerText" placeholder="Type the answer here..."></textarea>
+
+                <div class="math-hint">
+                  Use \( \) for inline formulas and \[ \] for bigger formulas.
+                </div>
               </div>
 
               <div class="form-row">
@@ -712,6 +482,7 @@
       renderTopicTabs();
       renderNotes();
       renderQuestions();
+      setTimeout(renderMath, 80);
     }
 
     function renderModuleTabs() {
@@ -902,10 +673,13 @@
     function toggleAnswer(id) {
       const el = document.getElementById('ans_' + id);
       if (el) el.classList.toggle('show');
+
+      setTimeout(renderMath, 50);
     }
 
     function showAllAnswers() {
       document.querySelectorAll('.answer').forEach(el => el.classList.add('show'));
+      setTimeout(renderMath, 50);
     }
 
     function hideAllAnswers() {
@@ -915,6 +689,65 @@
     function toggleAdmin() {
       const el = document.getElementById('adminSection');
       el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function openAdmin() {
+      closeFloatingMenu();
+
+      const admin = document.getElementById('adminSection');
+      admin.style.display = 'block';
+
+      admin.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+
+    function scrollToTop() {
+      closeFloatingMenu();
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    function toggleFloatingMenu() {
+      const menu = document.getElementById('floatingMenu');
+      if (menu) {
+        menu.classList.toggle('show');
+      }
+    }
+
+    function closeFloatingMenu() {
+      const menu = document.getElementById('floatingMenu');
+      if (menu) {
+        menu.classList.remove('show');
+      }
+    }
+
+    function insertMath(textareaId, text) {
+      const textarea = document.getElementById(textareaId);
+      if (!textarea) return;
+
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const current = textarea.value;
+
+      textarea.value =
+        current.substring(0, start) +
+        text +
+        current.substring(end);
+
+      const newPos = start + text.length;
+      textarea.focus();
+      textarea.setSelectionRange(newPos, newPos);
+    }
+
+    function renderMath() {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function () {});
+      }
     }
 
     async function login() {
