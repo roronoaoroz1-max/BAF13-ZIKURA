@@ -6,7 +6,7 @@
 
   <title>BAF13 - ZIKURA</title>
 
-  <link rel="stylesheet" href="style.css?v=3.0" />
+  <link rel="stylesheet" href="style.css?v=3.1" />
 
   <script>
     window.MathJax = {
@@ -660,10 +660,10 @@
     }
 
     function renderHomeQuestions() {
-      const questions = getFilteredQuestions().slice(0, 20);
-      document.getElementById('questionsList').innerHTML = renderQuestionCards(questions);
-      updateStats();
-    }
+  const questions = getFilteredQuestions();
+  document.getElementById('questionsList').innerHTML = renderQuestionCards(questions);
+  updateStats();
+}
 
     function renderQaView() {
       const input = document.getElementById('qaSearchInput');
