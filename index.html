@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5f3ec" />
+  <meta name="description" content="Zikura practice questions, short notes, and focused revision." />
+  <title>BAF13 — Zikura Study Hub</title>
 
-  <title>BAF13 - ZIKURA</title>
-
-  <link rel="stylesheet" href="style.css?v=6.0" />
+  <link rel="stylesheet" href="style.css?v=7.0" />
 
   <script>
     window.MathJax = {
@@ -14,439 +15,445 @@
         inlineMath: [['\\(', '\\)'], ['$', '$']],
         displayMath: [['\\[', '\\]']]
       },
-      svg: {
-        fontCache: 'global'
-      }
+      svg: { fontCache: 'global' }
     };
   </script>
-
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 
 <body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
   <header class="app-header">
-    <div>
-      <h1 id="appTitle">BAF13 - ZIKURA</h1>
-      <p>Practice Questions</p>
+    <div class="header-inner">
+      <button class="brand" type="button" onclick="showView('home')" aria-label="Go to home">
+        <span class="brand-mark" aria-hidden="true">Z</span>
+        <span class="brand-copy">
+          <strong id="appTitle">BAF13 — ZIKURA</strong>
+          <small>Study hub</small>
+        </span>
+      </button>
+
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <button type="button" class="active-nav" data-view="home" onclick="showView('home')">Overview</button>
+        <button type="button" data-view="qa" onclick="showView('qa')">Questions</button>
+        <button type="button" data-view="notes" onclick="showView('notes')">Notes</button>
+        <button type="button" data-view="random" onclick="showView('random')">Quick test</button>
+      </nav>
+
+      <div class="header-actions">
+        <button id="themeToggle" class="icon-button" type="button" onclick="toggleTheme()" aria-label="Switch to dark theme" title="Switch theme">
+          <span class="theme-icon" aria-hidden="true">◐</span>
+        </button>
+        <button class="admin-link" type="button" data-view="admin" onclick="showView('admin')">
+          Admin
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="app-shell">
-    <section id="homeView" class="view active-view">
-      <div class="top-search-card">
-        <input id="searchInput" placeholder="Search question, answer, note, tag..." oninput="renderPublic()" />
+  <main id="mainContent" class="app-shell" tabindex="-1">
+    <section id="homeView" class="view active-view" aria-labelledby="homeHeading">
+      <div class="hero-panel">
+        <div class="hero-copy">
+          <span class="eyebrow">Your revision workspace</span>
+          <h1 id="homeHeading">Study with a clear next step.</h1>
+          <p>Find a topic, test your recall, and reveal the answer only when you’re ready.</p>
+        </div>
+
+        <div class="hero-search">
+          <label class="search-field" for="searchInput">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" autocomplete="off" placeholder="Search questions, answers, notes, or tags" oninput="syncSearch('home')" />
+            <span class="search-hint" aria-hidden="true">/</span>
+          </label>
+          <button class="primary hero-random" type="button" onclick="startQuickTest()">Start a quick test <span aria-hidden="true">→</span></button>
+        </div>
       </div>
 
-      <div class="chip-section">
-        <div class="chip-label">Modules</div>
-        <div class="chip-row" id="moduleTabs"></div>
+      <div class="dashboard-grid">
+        <section class="filter-panel" aria-labelledby="browseHeading">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">Browse library</span>
+              <h2 id="browseHeading">Choose what to study</h2>
+            </div>
+            <button id="clearFiltersButton" class="text-button hidden" type="button" onclick="clearFilters()">Clear filters</button>
+          </div>
+
+          <div class="chip-section">
+            <div class="chip-label">Modules</div>
+            <div class="chip-row" id="moduleTabs" aria-label="Filter by module"></div>
+          </div>
+
+          <div class="chip-section hidden" id="topicChipSection">
+            <div class="chip-label">Weeks / topics</div>
+            <div class="chip-row" id="topicTabs" aria-label="Filter by week or topic"></div>
+          </div>
+
+          <div id="activeFilterSummary" class="filter-summary" aria-live="polite"></div>
+        </section>
+
+        <aside class="stats-panel" aria-label="Library summary">
+          <div class="stat-item stat-primary">
+            <span class="stat-icon" aria-hidden="true">Q</span>
+            <div><strong id="questionCount">0</strong><span>questions</span></div>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon" aria-hidden="true">N</span>
+            <div><strong id="noteCount">0</strong><span>short notes</span></div>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon" aria-hidden="true">M</span>
+            <div><strong id="moduleCount">0</strong><span>modules</span></div>
+          </div>
+        </aside>
       </div>
 
-      <div class="chip-section" id="topicChipSection">
-        <div class="chip-label">Weeks / Topics</div>
-        <div class="chip-row" id="topicTabs"></div>
+      <div id="loadingBox" class="loading-state" role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <div><strong>Loading your library</strong><small>Bringing the latest study material into focus…</small></div>
       </div>
 
- 
+      <section class="content-section" aria-labelledby="latestHeading">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Selected for you</span>
+            <h2 id="latestHeading">Questions to review</h2>
+          </div>
+          <button class="secondary" type="button" onclick="showView('qa')">View all questions <span aria-hidden="true">→</span></button>
+        </div>
+        <div id="questionsList" class="question-grid"></div>
+      </section>
+    </section>
 
-      <div class="stats-card">
+    <section id="qaView" class="view" aria-labelledby="qaHeading">
+      <div class="page-intro">
         <div>
-          <strong id="questionCount">0 Q&A</strong>
-          <span>Available questions</span>
+          <span class="eyebrow">Question library</span>
+          <h1 id="qaHeading">Practice at your pace</h1>
+          <p id="qaResultCount">Search the full question bank or narrow it by module.</p>
         </div>
+        <div class="page-actions">
+          <button class="secondary" type="button" onclick="showAllAnswers()">Reveal all</button>
+          <button class="secondary" type="button" onclick="hideAllAnswers()">Hide all</button>
+          <button class="primary" type="button" onclick="startQuickTest()">Quick test</button>
+        </div>
+      </div>
+
+      <div class="library-toolbar">
+        <label class="search-field compact" for="qaSearchInput">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="qaSearchInput" type="search" autocomplete="off" placeholder="Search the question bank" oninput="syncSearch('qa')" />
+        </label>
+        <button class="secondary filter-jump" type="button" onclick="showView('home', true)">Change module filter</button>
+      </div>
+
+      <div id="qaFilterSummary" class="inline-filter" aria-live="polite"></div>
+      <div id="qaList" class="question-grid"></div>
+    </section>
+
+    <section id="notesView" class="view" aria-labelledby="notesHeading">
+      <div class="page-intro">
         <div>
-          <strong id="noteCount">0 Notes</strong>
-          <span>Available short notes</span>
+          <span class="eyebrow">Reference shelf</span>
+          <h1 id="notesHeading">Short notes, easy to scan</h1>
+          <p id="notesResultCount">Keep key explanations and formulas close at hand.</p>
         </div>
       </div>
 
-      <div id="loadingBox" class="card">Loading...</div>
+      <div class="library-toolbar">
+        <label class="search-field compact" for="notesSearchInput">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="notesSearchInput" type="search" autocomplete="off" placeholder="Search notes" oninput="syncSearch('notes')" />
+        </label>
+        <button class="secondary filter-jump" type="button" onclick="showView('home', true)">Change module filter</button>
+      </div>
 
-      <h2 class="section-title">Latest Q&A</h2>
-      <div id="questionsList" class="grid"></div>
+      <div id="notesFilterSummary" class="inline-filter" aria-live="polite"></div>
+      <div id="notesSection" class="notes-grid"></div>
     </section>
 
-    <section id="qaView" class="view">
-      <div class="view-head">
-        <h2>Q&A</h2>
-        <button onclick="hideAllAnswers()">Hide Answers</button>
-      </div>
-
-      <div class="top-search-card">
-        <input id="qaSearchInput" placeholder="Search Q&A..." oninput="syncSearch('qa')" />
-      </div>
-
-      <div id="qaList" class="grid"></div>
-    </section>
-
-    <section id="notesView" class="view">
-      <div class="view-head">
-        <h2>Short Notes</h2>
-      </div>
-
-      <div class="top-search-card">
-        <input id="notesSearchInput" placeholder="Search notes..." oninput="syncSearch('notes')" />
-      </div>
-
-      <div id="notesSection" class="grid"></div>
-    </section>
-
-    <section id="randomView" class="view">
-      <div class="view-head">
-        <h2>Random Question</h2>
-        <button class="primary" onclick="showRandomQuestion()">New Random</button>
-      </div>
-
-      <div id="randomQuestionBox" class="grid"></div>
-    </section>
-
-    <section id="adminView" class="view">
-      <div id="loginBox" class="card login-box">
-        <h2>Admin Login</h2>
-
-        <div class="form-row">
-          <label>Username</label>
-          <input id="loginUsername" value="admin" />
+    <section id="randomView" class="view" aria-labelledby="randomHeading">
+      <div class="quick-test-shell">
+        <div class="page-intro quick-test-heading">
+          <div>
+            <span class="eyebrow">Recall mode</span>
+            <h1 id="randomHeading">One question. No distractions.</h1>
+            <p id="randomFilterLabel">Drawing from your current selection.</p>
+          </div>
+          <button class="secondary" type="button" onclick="showView('home', true)">Change selection</button>
         </div>
 
-        <div class="form-row">
-          <label>Password</label>
-          <input id="loginPassword" type="password" />
+        <div id="randomQuestionBox" class="random-question-box">
+          <div class="random-placeholder">
+            <span class="placeholder-mark" aria-hidden="true">?</span>
+            <h2>Ready when you are</h2>
+            <p>Pull a question from the current module and week filters.</p>
+            <button class="primary large" type="button" onclick="showRandomQuestion()">Give me a question</button>
+          </div>
         </div>
 
-        <button class="primary full-btn" onclick="login()">Login</button>
+        <div class="random-controls">
+          <button class="primary large" type="button" onclick="showRandomQuestion()">Next random question <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </section>
 
-        <div id="loginStatus" class="status"></div>
+    <section id="adminView" class="view" aria-labelledby="adminHeading">
+      <div id="loginBox" class="login-layout">
+        <div class="login-message">
+          <span class="eyebrow">Content management</span>
+          <h1 id="adminHeading">Keep the study library current.</h1>
+          <p>Sign in to manage modules, weeks, questions, notes, and account settings.</p>
+          <div class="login-feature"><span aria-hidden="true">01</span> Organize material by module and week</div>
+          <div class="login-feature"><span aria-hidden="true">02</span> Add formatted questions, images, and answers</div>
+          <div class="login-feature"><span aria-hidden="true">03</span> Publish updates to students immediately</div>
+        </div>
+
+        <form class="card login-card" onsubmit="event.preventDefault(); login();">
+          <span class="eyebrow">Secure area</span>
+          <h2>Admin sign in</h2>
+          <p>Use your Zikura administrator credentials.</p>
+
+          <div class="form-row">
+            <label for="loginUsername">Username</label>
+            <input id="loginUsername" autocomplete="username" value="admin" />
+          </div>
+          <div class="form-row">
+            <label for="loginPassword">Password</label>
+            <div class="password-field">
+              <input id="loginPassword" type="password" autocomplete="current-password" />
+              <button type="button" onclick="togglePassword('loginPassword', this)" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <button id="loginButton" class="primary full-btn" type="submit">Sign in</button>
+          <div id="loginStatus" class="status" role="status" aria-live="polite"></div>
+        </form>
       </div>
 
       <div id="adminBox" class="hidden">
         <div class="admin-header">
-          <h2>Admin Panel</h2>
           <div>
-            <button onclick="refreshAdmin()">Refresh</button>
-            <button class="danger" onclick="logout()">Logout</button>
+            <span class="eyebrow">Workspace</span>
+            <h1>Admin panel</h1>
+            <p>Manage the content students see in the study hub.</p>
+          </div>
+          <div class="page-actions">
+            <button class="secondary" type="button" onclick="refreshAdmin()">Refresh data</button>
+            <button class="danger-ghost" type="button" onclick="logout()">Sign out</button>
           </div>
         </div>
 
-        <div class="admin-tabs">
-          <button class="active-tab" id="tabModules" onclick="showAdminPage('Modules')">Modules</button>
-          <button id="tabTopics" onclick="showAdminPage('Topics')">Weeks</button>
-          <button id="tabQuestions" onclick="showAdminPage('Questions')">Q&A</button>
-          <button id="tabNotes" onclick="showAdminPage('Notes')">Notes</button>
-          <button id="tabSettings" onclick="showAdminPage('Settings')">Settings</button>
-        </div>
+        <div class="admin-workspace">
+          <nav class="admin-tabs" aria-label="Admin sections">
+            <button class="active-tab" id="tabModules" type="button" onclick="showAdminPage('Modules')"><span>Modules</span><b id="adminModuleCount">0</b></button>
+            <button id="tabTopics" type="button" onclick="showAdminPage('Topics')"><span>Weeks</span><b id="adminTopicCount">0</b></button>
+            <button id="tabQuestions" type="button" onclick="showAdminPage('Questions')"><span>Questions</span><b id="adminQuestionCount">0</b></button>
+            <button id="tabNotes" type="button" onclick="showAdminPage('Notes')"><span>Notes</span><b id="adminNoteCount">0</b></button>
+            <button id="tabSettings" type="button" onclick="showAdminPage('Settings')"><span>Settings</span></button>
+          </nav>
 
-        <div id="pageModules" class="admin-page active">
-          <div class="admin-grid">
-            <div class="card admin-form-card">
-              <h3>Add / Edit Module</h3>
-
-              <div class="form-row">
-                <label>Module ID</label>
-                <input id="moduleId" placeholder="Example: ECO102" />
-              </div>
-
-              <div class="form-row">
-                <label>Module Name</label>
-                <input id="moduleName" placeholder="Example: Microeconomics" />
-              </div>
-
-              <div class="form-row">
-                <label>Sort Order</label>
-                <input id="moduleSort" type="number" value="1" />
-              </div>
-
-              <div class="form-row inline-check">
-                <input id="moduleActive" type="checkbox" checked />
-                <label for="moduleActive">Active</label>
-              </div>
-
-              <button class="primary" onclick="saveModuleForm()">Save Module</button>
-              <button onclick="clearModuleForm()">Clear</button>
-
-              <div id="moduleStatus" class="status"></div>
-            </div>
-
-            <div class="card">
-              <h3>Modules List</h3>
-              <div id="modulesTable"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="pageTopics" class="admin-page">
-          <div class="admin-grid">
-            <div class="card admin-form-card">
-              <h3>Add / Edit Week / Topic</h3>
-
-              <input type="hidden" id="topicId" />
-
-              <div class="form-row">
-                <label>Module</label>
-                <select id="topicModule"></select>
-              </div>
-
-              <div class="form-row">
-                <label>Week / Topic Name</label>
-                <input id="topicName" placeholder="Example: Week 1" />
-              </div>
-
-              <div class="form-row">
-                <label>Sort Order</label>
-                <input id="topicSort" type="number" value="1" />
-              </div>
-
-              <div class="form-row inline-check">
-                <input id="topicActive" type="checkbox" checked />
-                <label for="topicActive">Active</label>
-              </div>
-
-              <button class="primary" onclick="saveTopicForm()">Save Week / Topic</button>
-              <button onclick="clearTopicForm()">Clear</button>
-
-              <div id="topicStatus" class="status"></div>
-            </div>
-
-            <div class="card">
-              <h3>Weeks / Topics List</h3>
-              <div id="topicsTable"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="pageQuestions" class="admin-page">
-          <div class="admin-grid">
-            <div class="card admin-form-card">
-              <h3>Add / Edit Question</h3>
-
-              <input type="hidden" id="questionId" />
-
-              <div class="form-row">
-                <label>Module</label>
-                <select id="questionModule" onchange="renderQuestionTopicSelect()"></select>
-              </div>
-
-              <div class="form-row">
-                <label>Week / Topic</label>
-                <select id="questionTopic"></select>
-              </div>
-
-              <div class="form-row">
-                <label>Question</label>
-                <div class="math-toolbar">
-                  <button type="button" onclick="insertMath('questionText', 'x²')">x²</button>
-                  <button type="button" onclick="insertMath('questionText', 'x³')">x³</button>
-                  <button type="button" onclick="insertMath('questionText', '√x')">√x</button>
-                  <button type="button" onclick="insertMath('questionText', '≤')">≤</button>
-                  <button type="button" onclick="insertMath('questionText', '≥')">≥</button>
-                  <button type="button" onclick="insertMath('questionText', '±')">±</button>
-                  <button type="button" onclick="insertMath('questionText', '\\(\\frac{1}{x}\\)')">1/x</button>
-                  <button type="button" onclick="insertMath('questionText', '\\(\\sqrt{x}\\)')">√ Math</button>
-                  <button type="button" onclick="insertMath('questionText', '\\(x^2 + y^2\\)')">x²+y²</button>
-                  <button type="button" onclick="insertMath('questionText', '\\(\\frac{}{ }\\)')">Fraction</button>
+          <div class="admin-content">
+            <div id="pageModules" class="admin-page active">
+              <div class="admin-grid">
+                <div class="card admin-form-card">
+                  <div class="card-heading"><span class="eyebrow">Editor</span><h2>Add or edit a module</h2></div>
+                  <div class="form-row"><label for="moduleId">Module ID</label><input id="moduleId" placeholder="e.g. ECO102" /></div>
+                  <div class="form-row"><label for="moduleName">Module name</label><input id="moduleName" placeholder="e.g. Microeconomics" /></div>
+                  <div class="form-row"><label for="moduleSort">Sort order</label><input id="moduleSort" type="number" value="1" min="0" /></div>
+                  <label class="toggle-row" for="moduleActive"><input id="moduleActive" type="checkbox" checked /><span class="toggle-ui" aria-hidden="true"></span><span><strong>Active</strong><small>Visible to students</small></span></label>
+                  <div class="form-actions"><button class="primary" type="button" onclick="saveModuleForm()">Save module</button><button class="secondary" type="button" onclick="clearModuleForm()">Clear</button></div>
+                  <div id="moduleStatus" class="status" role="status" aria-live="polite"></div>
                 </div>
-                <textarea id="questionText" placeholder="Type the question here..."></textarea>
+                <div class="card admin-list-panel"><div class="card-heading"><span class="eyebrow">Library</span><h2>Modules</h2></div><div id="modulesTable" class="admin-list"></div></div>
               </div>
+            </div>
 
-              <div class="form-row">
-                <label>Answer</label>
-                <div class="math-toolbar">
-                  <button type="button" onclick="insertMath('answerText', 'x²')">x²</button>
-                  <button type="button" onclick="insertMath('answerText', 'x³')">x³</button>
-                  <button type="button" onclick="insertMath('answerText', '√x')">√x</button>
-                  <button type="button" onclick="insertMath('answerText', '≤')">≤</button>
-                  <button type="button" onclick="insertMath('answerText', '≥')">≥</button>
-                  <button type="button" onclick="insertMath('answerText', '±')">±</button>
-                  <button type="button" onclick="insertMath('answerText', '\\(\\frac{1}{x}\\)')">1/x</button>
-                  <button type="button" onclick="insertMath('answerText', '\\(\\sqrt{x}\\)')">√ Math</button>
-                  <button type="button" onclick="insertMath('answerText', '\\(\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\)')">Quadratic</button>
-                  <button type="button" onclick="insertMath('answerText', '\\[\\begin{aligned} 3x + 2y &= 19 \\\\ x - y &= 2 \\end{aligned}\\]')">System</button>
+            <div id="pageTopics" class="admin-page">
+              <div class="admin-grid">
+                <div class="card admin-form-card">
+                  <div class="card-heading"><span class="eyebrow">Editor</span><h2>Add or edit a week</h2></div>
+                  <input type="hidden" id="topicId" />
+                  <div class="form-row"><label for="topicModule">Module</label><select id="topicModule"></select></div>
+                  <div class="form-row"><label for="topicName">Week or topic name</label><input id="topicName" placeholder="e.g. Week 1 — Demand" /></div>
+                  <div class="form-row"><label for="topicSort">Sort order</label><input id="topicSort" type="number" value="1" min="0" /></div>
+                  <label class="toggle-row" for="topicActive"><input id="topicActive" type="checkbox" checked /><span class="toggle-ui" aria-hidden="true"></span><span><strong>Active</strong><small>Visible to students</small></span></label>
+                  <div class="form-actions"><button class="primary" type="button" onclick="saveTopicForm()">Save week</button><button class="secondary" type="button" onclick="clearTopicForm()">Clear</button></div>
+                  <div id="topicStatus" class="status" role="status" aria-live="polite"></div>
                 </div>
-                <textarea id="answerText" placeholder="Type the answer here..."></textarea>
+                <div class="card admin-list-panel"><div class="card-heading"><span class="eyebrow">Library</span><h2>Weeks and topics</h2></div><div id="topicsTable" class="admin-list"></div></div>
               </div>
-
-              <div class="form-row">
-                <label>Answer Image URL</label>
-                <input id="answerImageUrl" placeholder="Paste solution image URL" />
-              </div>
-
-              <div class="form-row">
-                <label>Question Image URL</label>
-                <input id="questionImageUrl" placeholder="Paste question image URL" />
-              </div>
-
-              <div class="form-row">
-                <label>Tags</label>
-                <input id="questionTags" placeholder="Example: Week 4 Q1, Case Study" />
-              </div>
-
-              <div class="form-row">
-                <label>Sort Order</label>
-                <input id="questionSort" type="number" value="1" />
-              </div>
-
-              <div class="form-row inline-check">
-                <input id="questionActive" type="checkbox" checked />
-                <label for="questionActive">Active</label>
-              </div>
-
-              <button class="primary" onclick="saveQuestionForm()">Save Question</button>
-              <button onclick="clearQuestionForm()">Clear</button>
-
-              <div id="questionStatus" class="status"></div>
             </div>
 
-            <div class="card">
-              <h3>Questions List</h3>
-              <div class="form-row">
-                <input id="adminQuestionSearch" placeholder="Search questions..." oninput="renderAdminQuestions()" />
+            <div id="pageQuestions" class="admin-page">
+              <div class="admin-grid wide-editor">
+                <div class="card admin-form-card">
+                  <div class="card-heading"><span class="eyebrow">Editor</span><h2>Add or edit a question</h2></div>
+                  <input type="hidden" id="questionId" />
+                  <div class="form-split">
+                    <div class="form-row"><label for="questionModule">Module</label><select id="questionModule" onchange="renderQuestionTopicSelect()"></select></div>
+                    <div class="form-row"><label for="questionTopic">Week or topic</label><select id="questionTopic"></select></div>
+                  </div>
+                  <div class="form-row">
+                    <label for="questionText">Question</label>
+                    <div class="math-toolbar" aria-label="Insert math symbol">
+                      <button type="button" onclick="insertMath('questionText', 'x²')">x²</button><button type="button" onclick="insertMath('questionText', 'x³')">x³</button><button type="button" onclick="insertMath('questionText', '√x')">√x</button><button type="button" onclick="insertMath('questionText', '≤')">≤</button><button type="button" onclick="insertMath('questionText', '≥')">≥</button><button type="button" onclick="insertMath('questionText', '±')">±</button><button type="button" onclick="insertMath('questionText', '\\(\\frac{1}{x}\\)')">1/x</button><button type="button" onclick="insertMath('questionText', '\\(\\sqrt{x}\\)')">√ Math</button><button type="button" onclick="insertMath('questionText', '\\(x^2 + y^2\\)')">x²+y²</button><button type="button" onclick="insertMath('questionText', '\\(\\frac{}{ }\\)')">Fraction</button>
+                    </div>
+                    <textarea id="questionText" rows="6" placeholder="Type the question here…"></textarea>
+                  </div>
+                  <div class="form-row">
+                    <label for="answerText">Answer</label>
+                    <div class="math-toolbar" aria-label="Insert math symbol">
+                      <button type="button" onclick="insertMath('answerText', 'x²')">x²</button><button type="button" onclick="insertMath('answerText', 'x³')">x³</button><button type="button" onclick="insertMath('answerText', '√x')">√x</button><button type="button" onclick="insertMath('answerText', '≤')">≤</button><button type="button" onclick="insertMath('answerText', '≥')">≥</button><button type="button" onclick="insertMath('answerText', '±')">±</button><button type="button" onclick="insertMath('answerText', '\\(\\frac{1}{x}\\)')">1/x</button><button type="button" onclick="insertMath('answerText', '\\(\\sqrt{x}\\)')">√ Math</button><button type="button" onclick="insertMath('answerText', '\\(\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\)')">Quadratic</button><button type="button" onclick="insertMath('answerText', '\\[\\begin{aligned} 3x + 2y &= 19 \\\\ x - y &= 2 \\end{aligned}\\]')">System</button>
+                    </div>
+                    <textarea id="answerText" rows="8" placeholder="Type the answer here…"></textarea>
+                  </div>
+                  <div class="form-split"><div class="form-row"><label for="answerImageUrl">Answer image URL</label><input id="answerImageUrl" type="url" placeholder="Paste solution image URL" /></div><div class="form-row"><label for="questionImageUrl">Question image URL</label><input id="questionImageUrl" type="url" placeholder="Paste question image URL" /></div></div>
+                  <div class="form-split"><div class="form-row"><label for="questionTags">Tags</label><input id="questionTags" placeholder="e.g. Case study, Week 4" /></div><div class="form-row"><label for="questionSort">Sort order</label><input id="questionSort" type="number" value="1" min="0" /></div></div>
+                  <label class="toggle-row" for="questionActive"><input id="questionActive" type="checkbox" checked /><span class="toggle-ui" aria-hidden="true"></span><span><strong>Active</strong><small>Visible to students</small></span></label>
+                  <div class="form-actions"><button class="primary" type="button" onclick="saveQuestionForm()">Save question</button><button class="secondary" type="button" onclick="clearQuestionForm()">Clear</button></div>
+                  <div id="questionStatus" class="status" role="status" aria-live="polite"></div>
+                </div>
+                <div class="card admin-list-panel"><div class="card-heading"><span class="eyebrow">Library</span><h2>Questions</h2></div><div class="form-row"><label class="sr-only" for="adminQuestionSearch">Search questions</label><input id="adminQuestionSearch" type="search" placeholder="Search questions…" oninput="renderAdminQuestions()" /></div><div id="questionsTable" class="admin-list"></div></div>
               </div>
-              <div id="questionsTable"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="pageNotes" class="admin-page">
-          <div class="admin-grid">
-            <div class="card admin-form-card">
-              <h3>Add / Edit Short Note</h3>
-
-              <input type="hidden" id="noteId" />
-
-              <div class="form-row">
-                <label>Module</label>
-                <select id="noteModule" onchange="renderNoteTopicSelect()"></select>
-              </div>
-
-              <div class="form-row">
-                <label>Week / Topic</label>
-                <select id="noteTopic"></select>
-              </div>
-
-              <div class="form-row">
-                <label>Note Title</label>
-                <input id="noteTitle" placeholder="Example: Important formulas" />
-              </div>
-
-              <div class="form-row">
-                <label>Short Note</label>
-                <textarea id="shortNoteText" placeholder="Write short note here..."></textarea>
-              </div>
-
-              <div class="form-row">
-                <label>Image URL</label>
-                <input id="noteImageUrl" placeholder="Paste image URL" />
-              </div>
-
-              <div class="form-row">
-                <label>Sort Order</label>
-                <input id="noteSort" type="number" value="1" />
-              </div>
-
-              <div class="form-row inline-check">
-                <input id="noteActive" type="checkbox" checked />
-                <label for="noteActive">Active</label>
-              </div>
-
-              <button class="primary" onclick="saveShortNoteForm()">Save Short Note</button>
-              <button onclick="clearShortNoteForm()">Clear</button>
-
-              <div id="noteStatus" class="status"></div>
             </div>
 
-            <div class="card">
-              <h3>Short Notes List</h3>
-              <div class="form-row">
-                <input id="adminNoteSearch" placeholder="Search short notes..." oninput="renderAdminNotes()" />
+            <div id="pageNotes" class="admin-page">
+              <div class="admin-grid">
+                <div class="card admin-form-card">
+                  <div class="card-heading"><span class="eyebrow">Editor</span><h2>Add or edit a note</h2></div>
+                  <input type="hidden" id="noteId" />
+                  <div class="form-split"><div class="form-row"><label for="noteModule">Module</label><select id="noteModule" onchange="renderNoteTopicSelect()"></select></div><div class="form-row"><label for="noteTopic">Week or topic</label><select id="noteTopic"></select></div></div>
+                  <div class="form-row"><label for="noteTitle">Note title</label><input id="noteTitle" placeholder="e.g. Important formulas" /></div>
+                  <div class="form-row"><label for="shortNoteText">Short note</label><textarea id="shortNoteText" rows="10" placeholder="Write the note here…"></textarea></div>
+                  <div class="form-split"><div class="form-row"><label for="noteImageUrl">Image URL</label><input id="noteImageUrl" type="url" placeholder="Paste image URL" /></div><div class="form-row"><label for="noteSort">Sort order</label><input id="noteSort" type="number" value="1" min="0" /></div></div>
+                  <label class="toggle-row" for="noteActive"><input id="noteActive" type="checkbox" checked /><span class="toggle-ui" aria-hidden="true"></span><span><strong>Active</strong><small>Visible to students</small></span></label>
+                  <div class="form-actions"><button class="primary" type="button" onclick="saveShortNoteForm()">Save note</button><button class="secondary" type="button" onclick="clearShortNoteForm()">Clear</button></div>
+                  <div id="noteStatus" class="status" role="status" aria-live="polite"></div>
+                </div>
+                <div class="card admin-list-panel"><div class="card-heading"><span class="eyebrow">Library</span><h2>Short notes</h2></div><div class="form-row"><label class="sr-only" for="adminNoteSearch">Search short notes</label><input id="adminNoteSearch" type="search" placeholder="Search notes…" oninput="renderAdminNotes()" /></div><div id="notesTable" class="admin-list"></div></div>
               </div>
-              <div id="notesTable"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="pageSettings" class="admin-page">
-          <div class="card">
-            <h3>Change Admin Password</h3>
-
-            <div class="form-row">
-              <label>New Password</label>
-              <input id="newAdminPassword" type="password" placeholder="Minimum 6 characters" />
             </div>
 
-            <button class="success" onclick="changePassword()">Change Password</button>
-            <div id="passwordStatus" class="status"></div>
+            <div id="pageSettings" class="admin-page">
+              <div class="card settings-card">
+                <div class="card-heading"><span class="eyebrow">Security</span><h2>Change admin password</h2><p>Use at least six characters and avoid reusing a personal password.</p></div>
+                <div class="form-row"><label for="newAdminPassword">New password</label><div class="password-field"><input id="newAdminPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 characters" /><button type="button" onclick="togglePassword('newAdminPassword', this)" aria-label="Show password">Show</button></div></div>
+                <button class="primary" type="button" onclick="changePassword()">Update password</button>
+                <div id="passwordStatus" class="status" role="status" aria-live="polite"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <nav class="bottom-nav">
-  <button onclick="showView('home')" id="navHome" class="active-nav">Home</button>
-  <button onclick="showView('notes')" id="navNotes">Notes</button>
-  <button onclick="showView('admin')" id="navAdmin">Admin</button>
-</nav>
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button type="button" class="active-nav" data-view="home" onclick="showView('home')"><span aria-hidden="true">⌂</span><small>Home</small></button>
+    <button type="button" data-view="qa" onclick="showView('qa')"><span aria-hidden="true">Q</span><small>Questions</small></button>
+    <button type="button" data-view="notes" onclick="showView('notes')"><span aria-hidden="true">≡</span><small>Notes</small></button>
+    <button type="button" data-view="random" onclick="showView('random')"><span aria-hidden="true">↝</span><small>Test</small></button>
+    <button type="button" data-view="admin" onclick="showView('admin')"><span aria-hidden="true">⚙</span><small>Admin</small></button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwgg-hQhihbmHq26j6-lBwT60JKS8W2jnbkVcVJJ0CVA5ga01J8CvfC8KrynuaSrhRfpQ/exec';
 
     let appData = { modules: [], topics: [], questions: [], notes: [] };
     let adminData = { modules: [], topics: [], questions: [], notes: [] };
-
     let selectedModule = 'ALL';
     let selectedTopic = 'ALL';
+    let searchTerm = '';
+    let currentView = 'home';
+    let currentRandomId = '';
     let adminToken = localStorage.getItem('baf13AdminToken') || '';
+    let toastTimer;
 
     document.addEventListener('DOMContentLoaded', async () => {
+      initializeTheme();
+      initializeKeyboardShortcuts();
       await loadPublic();
 
       if (adminToken) {
         document.getElementById('loginBox').classList.add('hidden');
         document.getElementById('adminBox').classList.remove('hidden');
-
         try {
           await refreshAdmin();
-        } catch (err) {
-          logout();
+        } catch (error) {
+          logout(false);
         }
       }
     });
+
+    function initializeTheme() {
+      const stored = localStorage.getItem('zikuraTheme');
+      const preferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setTheme(stored || preferred);
+    }
+
+    function setTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#171916' : '#f5f3ec');
+      const button = document.getElementById('themeToggle');
+      if (button) button.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+
+    function toggleTheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('zikuraTheme', next);
+      setTheme(next);
+    }
+
+    function initializeKeyboardShortcuts() {
+      document.addEventListener('keydown', event => {
+        const tag = document.activeElement && document.activeElement.tagName;
+        const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+        if (event.key === '/' && !isTyping && currentView !== 'admin') {
+          event.preventDefault();
+          const target = currentView === 'qa' ? 'qaSearchInput' : currentView === 'notes' ? 'notesSearchInput' : 'searchInput';
+          document.getElementById(target)?.focus();
+        }
+        if (event.key === 'Escape' && isTyping && document.activeElement.type === 'search') {
+          searchTerm = '';
+          syncSearchFields();
+          renderPublic();
+          document.activeElement.blur();
+        }
+      });
+    }
 
     function jsonp(action, params = {}) {
       return new Promise((resolve, reject) => {
         const callbackName = 'jsonp_cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
         const url = new URL(API_URL);
-
         url.searchParams.set('action', action);
         url.searchParams.set('callback', callbackName);
-
-        Object.keys(params).forEach(key => {
-          url.searchParams.set(key, params[key]);
-        });
+        Object.keys(params).forEach(key => url.searchParams.set(key, params[key]));
 
         const script = document.createElement('script');
-
         const timer = setTimeout(() => {
           cleanup();
-          reject(new Error('Request timed out.'));
+          reject(new Error('The request took too long. Please try again.'));
         }, 45000);
 
         window[callbackName] = data => {
           cleanup();
-
           if (!data || data.success === false) {
-            reject(new Error(data && data.error ? data.error : 'Request failed.'));
+            reject(new Error(data && data.error ? data.error : 'The request could not be completed.'));
             return;
           }
-
           resolve(data);
         };
 
         script.onerror = () => {
           cleanup();
-          reject(new Error('Could not connect to backend.'));
+          reject(new Error('Could not connect to the study library.'));
         };
-
         script.src = url.toString();
         document.body.appendChild(script);
 
@@ -463,895 +470,635 @@
     }
 
     async function loadPublic() {
+      const loadingBox = document.getElementById('loadingBox');
+      loadingBox.classList.remove('hidden', 'error-state');
+      loadingBox.innerHTML = '<span class="spinner" aria-hidden="true"></span><div><strong>Loading your library</strong><small>Bringing the latest study material into focus…</small></div>';
       try {
-        document.getElementById('loadingBox').classList.remove('hidden');
-
         const data = await jsonp('getPublicData');
-        appData = data;
-
-        document.getElementById('appTitle').textContent = data.appName || 'BAF13 - ZIKURA';
-        document.getElementById('loadingBox').classList.add('hidden');
-
+        appData = normalizeData(data);
+        const appName = data.appName || 'BAF13 — ZIKURA';
+        document.getElementById('appTitle').textContent = appName;
+        document.title = appName + ' — Study Hub';
+        loadingBox.classList.add('hidden');
         renderPublic();
-      } catch (err) {
-        document.getElementById('loadingBox').innerHTML = 'Error loading app: ' + esc(err.message || err);
+      } catch (error) {
+        loadingBox.classList.add('error-state');
+        loadingBox.innerHTML = `<span class="error-mark" aria-hidden="true">!</span><div><strong>We couldn’t load the library</strong><small>${esc(error.message || error)}</small></div><button class="secondary" type="button" onclick="loadPublic()">Try again</button>`;
       }
     }
 
-    function showView(name) {
-  ['home', 'notes', 'admin'].forEach(v => {
-    document.getElementById(v + 'View').classList.remove('active-view');
-  });
+    function normalizeData(data) {
+      data = data || {};
+      return {
+        ...data,
+        modules: Array.isArray(data.modules) ? data.modules : [],
+        topics: Array.isArray(data.topics) ? data.topics : [],
+        questions: Array.isArray(data.questions) ? data.questions : [],
+        notes: Array.isArray(data.notes) ? data.notes : []
+      };
+    }
 
-  ['Home', 'Notes', 'Admin'].forEach(v => {
-    const nav = document.getElementById('nav' + v);
-    if (nav) nav.classList.remove('active-nav');
-  });
+    function showView(name, focusFilters = false) {
+      const validViews = ['home', 'qa', 'notes', 'random', 'admin'];
+      if (!validViews.includes(name)) return;
+      currentView = name;
 
-  document.getElementById(name + 'View').classList.add('active-view');
+      validViews.forEach(view => document.getElementById(view + 'View').classList.toggle('active-view', view === name));
+      document.querySelectorAll('[data-view]').forEach(button => {
+        const active = button.dataset.view === name;
+        button.classList.toggle('active-nav', active);
+        if (active) button.setAttribute('aria-current', 'page');
+        else button.removeAttribute('aria-current');
+      });
 
-  const navId = 'nav' + name.charAt(0).toUpperCase() + name.slice(1);
-  const nav = document.getElementById(navId);
-  if (nav) nav.classList.add('active-nav');
+      if (name === 'qa') renderQaView();
+      if (name === 'notes') renderNotesView();
+      if (name === 'random') updateRandomContext();
+      if (name === 'admin' && adminToken) refreshAdmin().catch(error => showToast(error.message, 'error'));
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  if (name === 'notes') renderNotesView();
-  if (name === 'admin' && adminToken) refreshAdmin();
-}
+      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      if (focusFilters && name === 'home') {
+        setTimeout(() => document.getElementById('browseHeading')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }), 120);
+      }
+    }
 
     function syncSearch(source) {
-      if (source === 'qa') {
-        document.getElementById('searchInput').value = document.getElementById('qaSearchInput').value;
-        renderQaView();
-      }
+      const sourceId = source === 'qa' ? 'qaSearchInput' : source === 'notes' ? 'notesSearchInput' : 'searchInput';
+      searchTerm = document.getElementById(sourceId).value.trim();
+      syncSearchFields(sourceId);
+      renderPublic();
+    }
 
-      if (source === 'notes') {
-        document.getElementById('searchInput').value = document.getElementById('notesSearchInput').value;
-        renderNotesView();
-      }
+    function syncSearchFields(exceptId = '') {
+      ['searchInput', 'qaSearchInput', 'notesSearchInput'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input && id !== exceptId) input.value = searchTerm;
+      });
     }
 
     function renderPublic() {
+      validateSelections();
       renderModuleTabs();
       renderTopicTabs();
+      renderFilterSummaries();
       renderHomeQuestions();
+      renderQaView();
+      renderNotesView();
       updateStats();
-      setTimeout(renderMath, 80);
+      updateRandomContext();
+      setTimeout(renderMath, 60);
+    }
+
+    function validateSelections() {
+      if (selectedModule !== 'ALL' && !appData.modules.some(module => String(module.ModuleID) === String(selectedModule))) {
+        selectedModule = 'ALL';
+        selectedTopic = 'ALL';
+      }
+      if (selectedTopic !== 'ALL' && !appData.topics.some(topic => String(topic.TopicID) === String(selectedTopic))) {
+        selectedTopic = 'ALL';
+      }
     }
 
     function renderModuleTabs() {
-      const el = document.getElementById('moduleTabs');
-
-      let html = `
-        <button class="${selectedModule === 'ALL' ? 'active-chip' : ''}" onclick="selectModule('ALL')">
-          All
-        </button>
-      `;
-
-      appData.modules.forEach(m => {
-        html += `
-          <button class="${selectedModule === String(m.ModuleID) ? 'active-chip' : ''}"
-                  onclick="selectModule('${escAttr(m.ModuleID)}')">
-            ${esc(m.ModuleID)}
-          </button>
-        `;
-      });
-
-      el.innerHTML = html;
+      const items = [{ id: 'ALL', name: 'All modules' }, ...appData.modules.map(module => ({ id: String(module.ModuleID), name: module.ModuleID }))];
+      document.getElementById('moduleTabs').innerHTML = items.map(item => `
+        <button type="button" class="chip ${selectedModule === item.id ? 'active-chip' : ''}" aria-pressed="${selectedModule === item.id}" data-module-id="${escAttr(item.id)}" onclick="selectModule(this.dataset.moduleId)">${esc(item.name)}</button>
+      `).join('');
     }
 
     function renderTopicTabs() {
       const section = document.getElementById('topicChipSection');
-      const el = document.getElementById('topicTabs');
-
+      const element = document.getElementById('topicTabs');
       if (selectedModule === 'ALL') {
         selectedTopic = 'ALL';
-        section.style.display = 'none';
-        el.innerHTML = '';
+        section.classList.add('hidden');
+        element.innerHTML = '';
         return;
       }
 
-      section.style.display = 'block';
-
-      const topics = appData.topics.filter(t => String(t.ModuleID) === String(selectedModule));
-
-      let html = `
-        <button class="${selectedTopic === 'ALL' ? 'active-chip' : ''}" onclick="selectTopic('ALL')">
-          All Weeks
-        </button>
-      `;
-
-      topics.forEach(t => {
-        html += `
-          <button class="${selectedTopic === String(t.TopicID) ? 'active-chip' : ''}"
-                  onclick="selectTopic('${escAttr(t.TopicID)}')">
-            ${esc(t.TopicName)}
-          </button>
-        `;
-      });
-
-      el.innerHTML = html;
+      section.classList.remove('hidden');
+      const topics = appData.topics.filter(topic => String(topic.ModuleID) === String(selectedModule));
+      const items = [{ id: 'ALL', name: 'All weeks' }, ...topics.map(topic => ({ id: String(topic.TopicID), name: topic.TopicName }))];
+      element.innerHTML = items.map(item => `
+        <button type="button" class="chip ${selectedTopic === item.id ? 'active-chip' : ''}" aria-pressed="${selectedTopic === item.id}" data-topic-id="${escAttr(item.id)}" onclick="selectTopic(this.dataset.topicId)">${esc(item.name)}</button>
+      `).join('');
     }
 
     function selectModule(moduleId) {
       selectedModule = moduleId;
       selectedTopic = 'ALL';
+      currentRandomId = '';
       renderPublic();
-      renderQaView();
-      renderNotesView();
     }
 
     function selectTopic(topicId) {
       selectedTopic = topicId;
+      currentRandomId = '';
       renderPublic();
-      renderQaView();
-      renderNotesView();
+    }
+
+    function clearFilters() {
+      selectedModule = 'ALL';
+      selectedTopic = 'ALL';
+      searchTerm = '';
+      currentRandomId = '';
+      syncSearchFields();
+      renderPublic();
     }
 
     function getFilteredQuestions() {
-      const search = document.getElementById('searchInput').value.trim().toLowerCase();
-
-      let questions = appData.questions || [];
-
-      if (selectedModule !== 'ALL') {
-        questions = questions.filter(q => String(q.ModuleID) === String(selectedModule));
-      }
-
-      if (selectedTopic !== 'ALL') {
-        questions = questions.filter(q => String(q.TopicID) === String(selectedTopic));
-      }
-
-      if (search) {
-        questions = questions.filter(q => {
-          const combined = [
-            q.Question,
-            q.Answer,
-            q.Tags,
-            getModuleName(q.ModuleID),
-            getTopicName(q.TopicID)
-          ].join(' ').toLowerCase();
-
-          return combined.includes(search);
-        });
-      }
-
-      return questions;
+      const query = searchTerm.toLowerCase();
+      return (appData.questions || []).filter(question => {
+        if (selectedModule !== 'ALL' && String(question.ModuleID) !== String(selectedModule)) return false;
+        if (selectedTopic !== 'ALL' && String(question.TopicID) !== String(selectedTopic)) return false;
+        if (!query) return true;
+        return [question.Question, question.Answer, question.Tags, getModuleName(question.ModuleID), getTopicName(question.TopicID)].join(' ').toLowerCase().includes(query);
+      });
     }
 
     function getFilteredNotes() {
-      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const query = searchTerm.toLowerCase();
+      return (appData.notes || []).filter(note => {
+        if (selectedModule !== 'ALL' && String(note.ModuleID) !== String(selectedModule)) return false;
+        if (selectedTopic !== 'ALL') {
+          const topicId = String(note.TopicID || '').trim();
+          if (topicId && topicId !== String(selectedTopic)) return false;
+        }
+        if (!query) return true;
+        return [note.NoteTitle, note.ShortNote, getModuleName(note.ModuleID), getTopicName(note.TopicID)].join(' ').toLowerCase().includes(query);
+      });
+    }
 
-      let notes = appData.notes || [];
+    function getFilterLabel() {
+      const parts = [];
+      if (selectedModule !== 'ALL') parts.push(getModuleName(selectedModule));
+      if (selectedTopic !== 'ALL') parts.push(getTopicName(selectedTopic));
+      if (searchTerm) parts.push(`“${searchTerm}”`);
+      return parts.length ? parts.join(' · ') : 'All modules and weeks';
+    }
 
-      if (selectedModule !== 'ALL') {
-        notes = notes.filter(n => String(n.ModuleID) === String(selectedModule));
-      }
-
-      if (selectedTopic !== 'ALL') {
-        notes = notes.filter(n => {
-          const topicId = String(n.TopicID || '').trim();
-          return topicId === '' || topicId === String(selectedTopic);
-        });
-      }
-
-      if (search) {
-        notes = notes.filter(n => {
-          const combined = [
-            n.NoteTitle,
-            n.ShortNote,
-            getModuleName(n.ModuleID),
-            getTopicName(n.TopicID)
-          ].join(' ').toLowerCase();
-
-          return combined.includes(search);
-        });
-      }
-
-      return notes;
+    function renderFilterSummaries() {
+      const label = getFilterLabel();
+      const isFiltered = selectedModule !== 'ALL' || selectedTopic !== 'ALL' || Boolean(searchTerm);
+      document.getElementById('clearFiltersButton').classList.toggle('hidden', !isFiltered);
+      document.getElementById('activeFilterSummary').innerHTML = `<span class="status-dot" aria-hidden="true"></span><span>Showing <strong>${esc(label)}</strong></span>`;
+      document.getElementById('qaFilterSummary').innerHTML = `<span>Current selection</span><strong>${esc(label)}</strong>`;
+      document.getElementById('notesFilterSummary').innerHTML = `<span>Current selection</span><strong>${esc(label)}</strong>`;
     }
 
     function updateStats() {
-      const questions = getFilteredQuestions();
-      const notes = getFilteredNotes();
-
-      document.getElementById('questionCount').textContent = questions.length + ' Q&A';
-      document.getElementById('noteCount').textContent = notes.length + ' Notes';
+      document.getElementById('questionCount').textContent = getFilteredQuestions().length;
+      document.getElementById('noteCount').textContent = getFilteredNotes().length;
+      document.getElementById('moduleCount').textContent = appData.modules.length;
     }
 
     function renderHomeQuestions() {
-  const questions = getFilteredQuestions();
-  document.getElementById('questionsList').innerHTML = renderQuestionCards(questions);
-  updateStats();
-}
+      const questions = getFilteredQuestions();
+      document.getElementById('questionsList').innerHTML = renderQuestionCards(questions.slice(0, 6), { compact: true });
+    }
 
     function renderQaView() {
-      const input = document.getElementById('qaSearchInput');
-      if (input) input.value = document.getElementById('searchInput').value;
-
       const questions = getFilteredQuestions();
+      document.getElementById('qaResultCount').textContent = `${questions.length} ${questions.length === 1 ? 'question' : 'questions'} in this selection.`;
       document.getElementById('qaList').innerHTML = renderQuestionCards(questions);
-
-      setTimeout(renderMath, 80);
+      if (currentView === 'qa') setTimeout(renderMath, 40);
     }
 
     function renderNotesView() {
-      const input = document.getElementById('notesSearchInput');
-      if (input) input.value = document.getElementById('searchInput').value;
-
       const notes = getFilteredNotes();
-
+      document.getElementById('notesResultCount').textContent = `${notes.length} ${notes.length === 1 ? 'note' : 'notes'} in this selection.`;
+      const container = document.getElementById('notesSection');
       if (!notes.length) {
-        document.getElementById('notesSection').innerHTML = '<div class="card empty-card">No notes found.</div>';
+        container.innerHTML = renderEmptyState('No notes match this selection', 'Try another search, module, or week.', 'Clear filters', 'clearFilters()');
         return;
       }
 
-      document.getElementById('notesSection').innerHTML = notes.map(n => {
-        const img = n.ImageUrl
-          ? `<img class="main-img" src="${escAttr(getImageUrl(n.ImageUrl))}" alt="Short note image" />`
-          : '';
-
-        const topicLabel = n.TopicID ? getTopicName(n.TopicID) : 'Module General';
-
+      container.innerHTML = notes.map(note => {
+        const topicLabel = note.TopicID ? getTopicName(note.TopicID) : 'Module general';
+        const image = note.ImageUrl ? `<div class="media-frame"><img class="main-img" src="${escAttr(getImageUrl(note.ImageUrl))}" alt="${escAttr(note.NoteTitle || 'Short note')}" loading="lazy" /></div>` : '';
         return `
-          <article class="qa-card">
-            <div class="meta-line">${esc(getModuleName(n.ModuleID))} · ${esc(topicLabel)}</div>
-            <h3 class="note-title">${esc(n.NoteTitle)}</h3>
-            <div class="note-body">${nl2br(esc(n.ShortNote))}</div>
-            ${img}
-          </article>
-        `;
+          <article class="note-card">
+            <div class="card-meta"><span class="module-badge">${esc(shortModuleName(note.ModuleID))}</span><span>${esc(topicLabel)}</span></div>
+            <h2>${esc(note.NoteTitle || 'Untitled note')}</h2>
+            <div class="note-body">${nl2br(esc(note.ShortNote || ''))}</div>
+            ${image}
+          </article>`;
       }).join('');
-
-      setTimeout(renderMath, 80);
+      if (currentView === 'notes') setTimeout(renderMath, 40);
     }
 
-    function renderQuestionCards(questions) {
-      if (!questions.length) {
-        return '<div class="card empty-card">No questions found.</div>';
-      }
+    function renderQuestionCards(questions, options = {}) {
+      if (!questions.length) return renderEmptyState('No questions found', 'Try another search, module, or week.', 'Clear filters', 'clearFilters()');
 
-      return questions.map((q, index) => {
-        const questionImg = q.ImageUrl
-          ? `<img class="main-img" src="${escAttr(getImageUrl(q.ImageUrl))}" alt="Question image" />`
-          : '';
-
-        const answerImg = q.AnswerImageUrl
-          ? `<img class="main-img" src="${escAttr(getImageUrl(q.AnswerImageUrl))}" alt="Answer image" />`
-          : '';
-
-        const tags = q.Tags ? `<div class="tag-line">${esc(q.Tags)}</div>` : '';
-
+      return questions.map((question, index) => {
+        const questionImage = question.ImageUrl ? `<div class="media-frame"><img class="main-img" src="${escAttr(getImageUrl(question.ImageUrl))}" alt="Question reference" loading="lazy" /></div>` : '';
+        const answerImage = question.AnswerImageUrl ? `<div class="media-frame answer-media"><img class="main-img" src="${escAttr(getImageUrl(question.AnswerImageUrl))}" alt="Answer reference" loading="lazy" /></div>` : '';
+        const tags = String(question.Tags || '').split(',').map(tag => tag.trim()).filter(Boolean).slice(0, 5).map(tag => `<span>${esc(tag)}</span>`).join('');
+        const number = options.random ? 'Random' : String(index + 1).padStart(2, '0');
         return `
-          <article class="qa-card">
-            <div class="meta-line">${esc(getModuleName(q.ModuleID))} · ${esc(getTopicName(q.TopicID))}</div>
-            <h3 class="question-title">${index + 1}. ${nl2br(esc(q.Question))}</h3>
-            ${questionImg}
-            ${tags}
-
-            <button class="answer-toggle" onclick="toggleAnswer('${escAttr(q.QuestionID)}')">
-              Show Answer
-            </button>
-
-            <div class="answer" id="ans_${escAttr(q.QuestionID)}">
-              ${nl2br(esc(q.Answer))}
-              ${answerImg}
+          <article class="question-card ${options.random ? 'random-card' : ''}">
+            <div class="question-topline">
+              <div class="card-meta"><span class="module-badge">${esc(shortModuleName(question.ModuleID))}</span><span>${esc(getTopicName(question.TopicID) || 'General')}</span></div>
+              <span class="question-number">${esc(number)}</span>
             </div>
-          </article>
-        `;
+            <h2 class="question-title">${nl2br(esc(question.Question || 'Untitled question'))}</h2>
+            ${questionImage}
+            ${tags ? `<div class="tag-line">${tags}</div>` : ''}
+            <div class="question-actions">
+              <button class="answer-toggle" type="button" aria-expanded="false" onclick="toggleAnswer(this)"><span>Reveal answer</span><span class="toggle-arrow" aria-hidden="true">↓</span></button>
+            </div>
+            <div class="answer" hidden>
+              <div class="answer-heading"><span>Answer</span><button type="button" class="copy-button" onclick="copyAnswer(this)">Copy</button></div>
+              <div class="answer-copy-source">${nl2br(esc(question.Answer || 'No answer has been added yet.'))}</div>
+              ${answerImage}
+            </div>
+          </article>`;
       }).join('');
     }
 
-    function toggleAnswer(id) {
-      const el = document.getElementById('ans_' + id);
-      if (!el) return;
+    function renderEmptyState(title, message, actionLabel, action) {
+      return `<div class="empty-state"><span class="empty-mark" aria-hidden="true">○</span><h2>${esc(title)}</h2><p>${esc(message)}</p><button class="secondary" type="button" onclick="${action}">${esc(actionLabel)}</button></div>`;
+    }
 
-      el.classList.toggle('show');
-
-      const btn = el.previousElementSibling;
-      if (btn && btn.classList.contains('answer-toggle')) {
-        btn.textContent = el.classList.contains('show') ? 'Hide Answer' : 'Show Answer';
-      }
-
-      setTimeout(renderMath, 50);
+    function toggleAnswer(button) {
+      const answer = button.closest('.question-card')?.querySelector('.answer');
+      if (!answer) return;
+      const willOpen = answer.hidden;
+      answer.hidden = !willOpen;
+      button.setAttribute('aria-expanded', String(willOpen));
+      button.querySelector('span:first-child').textContent = willOpen ? 'Hide answer' : 'Reveal answer';
+      button.querySelector('.toggle-arrow').textContent = willOpen ? '↑' : '↓';
+      if (willOpen) setTimeout(renderMath, 30);
     }
 
     function showAllAnswers() {
-      document.querySelectorAll('.answer').forEach(el => el.classList.add('show'));
-      document.querySelectorAll('.answer-toggle').forEach(btn => btn.textContent = 'Hide Answer');
-      setTimeout(renderMath, 50);
+      document.querySelectorAll('#qaList .question-card').forEach(card => {
+        const button = card.querySelector('.answer-toggle');
+        const answer = card.querySelector('.answer');
+        if (button && answer && answer.hidden) toggleAnswer(button);
+      });
     }
 
     function hideAllAnswers() {
-      document.querySelectorAll('.answer').forEach(el => el.classList.remove('show'));
-      document.querySelectorAll('.answer-toggle').forEach(btn => btn.textContent = 'Show Answer');
+      document.querySelectorAll('#qaList .question-card').forEach(card => {
+        const button = card.querySelector('.answer-toggle');
+        const answer = card.querySelector('.answer');
+        if (button && answer && !answer.hidden) toggleAnswer(button);
+      });
+    }
+
+    async function copyAnswer(button) {
+      const text = button.closest('.answer')?.querySelector('.answer-copy-source')?.innerText || '';
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Answer copied');
+      } catch (error) {
+        showToast('Could not copy the answer', 'error');
+      }
+    }
+
+    function startQuickTest() {
+      showView('random');
+      showRandomQuestion();
+    }
+
+    function updateRandomContext() {
+      document.getElementById('randomFilterLabel').textContent = `Drawing from: ${getFilterLabel()}.`;
     }
 
     function showRandomQuestion() {
       const list = getFilteredQuestions();
       const box = document.getElementById('randomQuestionBox');
-
       if (!list.length) {
-        box.innerHTML = '<div class="card empty-card">No question available for this filter.</div>';
+        box.innerHTML = renderEmptyState('No question is available', 'Change or clear the current selection and try again.', 'Clear filters', 'clearFilters(); showView(\'random\')');
         return;
       }
 
-      const random = list[Math.floor(Math.random() * list.length)];
-      box.innerHTML = renderQuestionCards([random]);
-      setTimeout(renderMath, 80);
+      let candidates = list;
+      if (list.length > 1 && currentRandomId) candidates = list.filter(question => String(question.QuestionID) !== currentRandomId);
+      const random = candidates[Math.floor(Math.random() * candidates.length)];
+      currentRandomId = String(random.QuestionID || '');
+      box.innerHTML = renderQuestionCards([random], { random: true });
+      setTimeout(renderMath, 40);
     }
 
     function insertMath(textareaId, text) {
       const textarea = document.getElementById(textareaId);
       if (!textarea) return;
-
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const current = textarea.value;
-
-      textarea.value = current.substring(0, start) + text + current.substring(end);
-
-      const newPos = start + text.length;
+      textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
+      const next = start + text.length;
       textarea.focus();
-      textarea.setSelectionRange(newPos, newPos);
+      textarea.setSelectionRange(next, next);
     }
 
     function renderMath() {
       if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise().catch(function () {});
+        window.MathJax.typesetPromise().catch(() => {});
       }
     }
 
     async function login() {
       setStatus('loginStatus', '', '');
-
+      const button = document.getElementById('loginButton');
+      button.disabled = true;
+      button.textContent = 'Signing in…';
       try {
-        const username = document.getElementById('loginUsername').value;
+        const username = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value;
-
+        if (!username || !password) throw new Error('Enter both your username and password.');
         const data = await postAction('loginAdmin', { username, password });
-
         adminToken = data.token;
         localStorage.setItem('baf13AdminToken', adminToken);
-
+        document.getElementById('loginPassword').value = '';
         document.getElementById('loginBox').classList.add('hidden');
         document.getElementById('adminBox').classList.remove('hidden');
-
         await refreshAdmin();
-      } catch (err) {
-        setStatus('loginStatus', err.message || String(err), 'err');
+        showToast('Welcome back');
+      } catch (error) {
+        setStatus('loginStatus', error.message || String(error), 'err');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Sign in';
       }
     }
 
-    function logout() {
+    function logout(showMessage = true) {
       adminToken = '';
       localStorage.removeItem('baf13AdminToken');
-
       document.getElementById('loginBox').classList.remove('hidden');
       document.getElementById('adminBox').classList.add('hidden');
+      if (showMessage) showToast('Signed out');
     }
 
     async function refreshAdmin() {
-      adminData = await postAction('getAdminData', { token: adminToken });
-
+      adminData = normalizeData(await postAction('getAdminData', { token: adminToken }));
       renderAdminSelects();
       renderAdminModules();
       renderAdminTopics();
       renderAdminQuestions();
       renderAdminNotes();
-
+      updateAdminCounts();
       await loadPublic();
+    }
+
+    function updateAdminCounts() {
+      document.getElementById('adminModuleCount').textContent = adminData.modules.length;
+      document.getElementById('adminTopicCount').textContent = adminData.topics.length;
+      document.getElementById('adminQuestionCount').textContent = adminData.questions.length;
+      document.getElementById('adminNoteCount').textContent = adminData.notes.length;
     }
 
     function showAdminPage(name) {
       ['Modules', 'Topics', 'Questions', 'Notes', 'Settings'].forEach(page => {
-        document.getElementById('page' + page).classList.remove('active');
-        document.getElementById('tab' + page).classList.remove('active-tab');
+        document.getElementById('page' + page).classList.toggle('active', page === name);
+        document.getElementById('tab' + page).classList.toggle('active-tab', page === name);
       });
-
-      document.getElementById('page' + name).classList.add('active');
-      document.getElementById('tab' + name).classList.add('active-tab');
     }
 
     function renderAdminSelects() {
-      const moduleOptions = adminData.modules.map(m => `
-        <option value="${escAttr(m.ModuleID)}">${esc(m.ModuleID)} - ${esc(m.ModuleName)}</option>
-      `).join('');
-
-      document.getElementById('topicModule').innerHTML = moduleOptions;
-      document.getElementById('questionModule').innerHTML = moduleOptions;
-      document.getElementById('noteModule').innerHTML = moduleOptions;
-
+      const options = adminData.modules.map(module => `<option value="${escAttr(module.ModuleID)}">${esc(module.ModuleID)} — ${esc(module.ModuleName)}</option>`).join('');
+      ['topicModule', 'questionModule', 'noteModule'].forEach(id => document.getElementById(id).innerHTML = options);
       renderQuestionTopicSelect();
       renderNoteTopicSelect();
     }
 
     function renderQuestionTopicSelect() {
       const moduleId = document.getElementById('questionModule').value;
-      const topics = adminData.topics.filter(t => String(t.ModuleID) === String(moduleId));
-
-      document.getElementById('questionTopic').innerHTML = topics.map(t => `
-        <option value="${escAttr(t.TopicID)}">${esc(t.TopicName)}</option>
-      `).join('');
+      const topics = adminData.topics.filter(topic => String(topic.ModuleID) === String(moduleId));
+      document.getElementById('questionTopic').innerHTML = topics.map(topic => `<option value="${escAttr(topic.TopicID)}">${esc(topic.TopicName)}</option>`).join('');
     }
 
     function renderNoteTopicSelect() {
       const moduleId = document.getElementById('noteModule').value;
-      const topics = adminData.topics.filter(t => String(t.ModuleID) === String(moduleId));
-
-      let html = `<option value="">Module General Note</option>`;
-
-      html += topics.map(t => `
-        <option value="${escAttr(t.TopicID)}">${esc(t.TopicName)}</option>
-      `).join('');
-
-      document.getElementById('noteTopic').innerHTML = html;
+      const topics = adminData.topics.filter(topic => String(topic.ModuleID) === String(moduleId));
+      document.getElementById('noteTopic').innerHTML = `<option value="">Module general note</option>` + topics.map(topic => `<option value="${escAttr(topic.TopicID)}">${esc(topic.TopicName)}</option>`).join('');
     }
 
     async function saveModuleForm() {
       setStatus('moduleStatus', '', '');
-
       try {
         const payload = {
-          ModuleID: document.getElementById('moduleId').value,
-          ModuleName: document.getElementById('moduleName').value,
+          ModuleID: document.getElementById('moduleId').value.trim(),
+          ModuleName: document.getElementById('moduleName').value.trim(),
           SortOrder: document.getElementById('moduleSort').value,
           IsActive: document.getElementById('moduleActive').checked
         };
-
-        adminData = await postAction('saveModule', {
-          token: adminToken,
-          payload: JSON.stringify(payload)
-        });
-
+        if (!payload.ModuleID || !payload.ModuleName) throw new Error('Module ID and name are required.');
+        adminData = normalizeData(await postAction('saveModule', { token: adminToken, payload: JSON.stringify(payload) }));
         clearModuleForm();
-        renderAdminSelects();
-        renderAdminModules();
+        renderAdminSelects(); renderAdminModules(); updateAdminCounts();
         await loadPublic();
-
         setStatus('moduleStatus', 'Module saved.', 'ok');
-      } catch (err) {
-        setStatus('moduleStatus', err.message || String(err), 'err');
-      }
+      } catch (error) { setStatus('moduleStatus', error.message || String(error), 'err'); }
     }
 
-    function editModule(m) {
-      document.getElementById('moduleId').value = m.ModuleID || '';
-      document.getElementById('moduleName').value = m.ModuleName || '';
-      document.getElementById('moduleSort').value = m.SortOrder || 1;
-      document.getElementById('moduleActive').checked = String(m.IsActive).toLowerCase() !== 'false';
+    function editModuleRecord(button) { editModule(decodeRecord(button.dataset.record)); }
+    function editModule(module) {
+      document.getElementById('moduleId').value = module.ModuleID || '';
+      document.getElementById('moduleName').value = module.ModuleName || '';
+      document.getElementById('moduleSort').value = module.SortOrder ?? 1;
+      document.getElementById('moduleActive').checked = isActive(module.IsActive);
       showAdminPage('Modules');
+      document.getElementById('moduleName').focus();
     }
-
     function clearModuleForm() {
       document.getElementById('moduleId').value = '';
       document.getElementById('moduleName').value = '';
       document.getElementById('moduleSort').value = 1;
       document.getElementById('moduleActive').checked = true;
     }
-
-    async function deleteModuleConfirm(moduleId) {
-      if (!confirm('Delete this module? This will also delete its weeks, questions, and notes.')) return;
-
+    async function deleteModuleConfirm(button) {
+      const moduleId = button.dataset.id;
+      if (!confirm(`Delete ${moduleId}? Its weeks, questions, and notes will also be deleted.`)) return;
       try {
-        adminData = await postAction('deleteModule', { token: adminToken, moduleId });
-        renderAdminSelects();
-        renderAdminModules();
-        renderAdminTopics();
-        renderAdminQuestions();
-        renderAdminNotes();
-        await loadPublic();
-      } catch (err) {
-        alert(err.message || err);
-      }
+        adminData = normalizeData(await postAction('deleteModule', { token: adminToken, moduleId }));
+        renderAllAdmin(); await loadPublic(); showToast('Module deleted');
+      } catch (error) { showToast(error.message || String(error), 'error'); }
     }
-
     function renderAdminModules() {
-      const el = document.getElementById('modulesTable');
-
-      if (!adminData.modules.length) {
-        el.innerHTML = '<p>No modules yet.</p>';
-        return;
-      }
-
-      el.innerHTML = adminData.modules.map(m => `
-        <div class="admin-list-card">
-          <strong>${esc(m.ModuleID)}</strong>
-          <span>${esc(m.ModuleName)}</span>
-          <small>Sort: ${esc(m.SortOrder)} · Active: ${esc(m.IsActive)}</small>
-          <div class="small-actions">
-            <button onclick='editModule(${jsonAttr(m)})'>Edit</button>
-            <button class="danger" onclick="deleteModuleConfirm('${escAttr(m.ModuleID)}')">Delete</button>
-          </div>
-        </div>
-      `).join('');
+      const element = document.getElementById('modulesTable');
+      if (!adminData.modules.length) { element.innerHTML = adminEmpty('No modules yet'); return; }
+      element.innerHTML = adminData.modules.map(module => `
+        <article class="admin-list-card"><div class="list-card-main"><span class="record-id">${esc(module.ModuleID)}</span><strong>${esc(module.ModuleName)}</strong><small>Sort ${esc(module.SortOrder)} · ${isActive(module.IsActive) ? 'Active' : 'Hidden'}</small></div><div class="small-actions"><button class="secondary" type="button" data-record="${encodeRecord(module)}" onclick="editModuleRecord(this)">Edit</button><button class="danger-ghost" type="button" data-id="${escAttr(module.ModuleID)}" onclick="deleteModuleConfirm(this)">Delete</button></div></article>`).join('');
     }
 
     async function saveTopicForm() {
       setStatus('topicStatus', '', '');
-
       try {
-        const payload = {
-          TopicID: document.getElementById('topicId').value,
-          ModuleID: document.getElementById('topicModule').value,
-          TopicName: document.getElementById('topicName').value,
-          SortOrder: document.getElementById('topicSort').value,
-          IsActive: document.getElementById('topicActive').checked
-        };
-
-        adminData = await postAction('saveTopic', {
-          token: adminToken,
-          payload: JSON.stringify(payload)
-        });
-
-        clearTopicForm();
-        renderAdminSelects();
-        renderAdminTopics();
-        await loadPublic();
-
-        setStatus('topicStatus', 'Week / Topic saved.', 'ok');
-      } catch (err) {
-        setStatus('topicStatus', err.message || String(err), 'err');
-      }
+        const payload = { TopicID: document.getElementById('topicId').value, ModuleID: document.getElementById('topicModule').value, TopicName: document.getElementById('topicName').value.trim(), SortOrder: document.getElementById('topicSort').value, IsActive: document.getElementById('topicActive').checked };
+        if (!payload.ModuleID || !payload.TopicName) throw new Error('Choose a module and enter a week or topic name.');
+        adminData = normalizeData(await postAction('saveTopic', { token: adminToken, payload: JSON.stringify(payload) }));
+        clearTopicForm(); renderAdminSelects(); renderAdminTopics(); updateAdminCounts(); await loadPublic();
+        setStatus('topicStatus', 'Week saved.', 'ok');
+      } catch (error) { setStatus('topicStatus', error.message || String(error), 'err'); }
     }
-
-    function editTopic(t) {
-      document.getElementById('topicId').value = t.TopicID || '';
-      document.getElementById('topicModule').value = t.ModuleID || '';
-      document.getElementById('topicName').value = t.TopicName || '';
-      document.getElementById('topicSort').value = t.SortOrder || 1;
-      document.getElementById('topicActive').checked = String(t.IsActive).toLowerCase() !== 'false';
-      showAdminPage('Topics');
+    function editTopicRecord(button) { editTopic(decodeRecord(button.dataset.record)); }
+    function editTopic(topic) {
+      document.getElementById('topicId').value = topic.TopicID || '';
+      document.getElementById('topicModule').value = topic.ModuleID || '';
+      document.getElementById('topicName').value = topic.TopicName || '';
+      document.getElementById('topicSort').value = topic.SortOrder ?? 1;
+      document.getElementById('topicActive').checked = isActive(topic.IsActive);
+      showAdminPage('Topics'); document.getElementById('topicName').focus();
     }
-
-    function clearTopicForm() {
-      document.getElementById('topicId').value = '';
-      document.getElementById('topicName').value = '';
-      document.getElementById('topicSort').value = 1;
-      document.getElementById('topicActive').checked = true;
+    function clearTopicForm() { document.getElementById('topicId').value = ''; document.getElementById('topicName').value = ''; document.getElementById('topicSort').value = 1; document.getElementById('topicActive').checked = true; }
+    async function deleteTopicConfirm(button) {
+      const topicId = button.dataset.id;
+      if (!confirm('Delete this week or topic? Related questions and notes will also be deleted.')) return;
+      try { adminData = normalizeData(await postAction('deleteTopic', { token: adminToken, topicId })); renderAllAdmin(); await loadPublic(); showToast('Week deleted'); } catch (error) { showToast(error.message || String(error), 'error'); }
     }
-
-    async function deleteTopicConfirm(topicId) {
-      if (!confirm('Delete this week/topic? Its questions and related notes will also be deleted.')) return;
-
-      try {
-        adminData = await postAction('deleteTopic', { token: adminToken, topicId });
-        renderAdminSelects();
-        renderAdminTopics();
-        renderAdminQuestions();
-        renderAdminNotes();
-        await loadPublic();
-      } catch (err) {
-        alert(err.message || err);
-      }
-    }
-
     function renderAdminTopics() {
-      const el = document.getElementById('topicsTable');
-
-      if (!adminData.topics.length) {
-        el.innerHTML = '<p>No weeks/topics yet.</p>';
-        return;
-      }
-
-      el.innerHTML = adminData.topics.map(t => `
-        <div class="admin-list-card">
-          <strong>${esc(t.TopicName)}</strong>
-          <span>${esc(getModuleNameFrom(adminData.modules, t.ModuleID))}</span>
-          <small>Sort: ${esc(t.SortOrder)} · Active: ${esc(t.IsActive)}</small>
-          <div class="small-actions">
-            <button onclick='editTopic(${jsonAttr(t)})'>Edit</button>
-            <button class="danger" onclick="deleteTopicConfirm('${escAttr(t.TopicID)}')">Delete</button>
-          </div>
-        </div>
-      `).join('');
+      const element = document.getElementById('topicsTable');
+      if (!adminData.topics.length) { element.innerHTML = adminEmpty('No weeks or topics yet'); return; }
+      element.innerHTML = adminData.topics.map(topic => `
+        <article class="admin-list-card"><div class="list-card-main"><span class="record-id">${esc(shortModuleNameFrom(adminData.modules, topic.ModuleID))}</span><strong>${esc(topic.TopicName)}</strong><small>Sort ${esc(topic.SortOrder)} · ${isActive(topic.IsActive) ? 'Active' : 'Hidden'}</small></div><div class="small-actions"><button class="secondary" type="button" data-record="${encodeRecord(topic)}" onclick="editTopicRecord(this)">Edit</button><button class="danger-ghost" type="button" data-id="${escAttr(topic.TopicID)}" onclick="deleteTopicConfirm(this)">Delete</button></div></article>`).join('');
     }
 
     async function saveQuestionForm() {
       setStatus('questionStatus', '', '');
-
       try {
-        const payload = {
-          QuestionID: document.getElementById('questionId').value,
-          ModuleID: document.getElementById('questionModule').value,
-          TopicID: document.getElementById('questionTopic').value,
-          Question: document.getElementById('questionText').value,
-          Answer: document.getElementById('answerText').value,
-          AnswerImageUrl: document.getElementById('answerImageUrl').value,
-          ImageUrl: document.getElementById('questionImageUrl').value,
-          Tags: document.getElementById('questionTags').value,
-          SortOrder: document.getElementById('questionSort').value,
-          IsActive: document.getElementById('questionActive').checked
-        };
-
-        adminData = await postAction('saveQuestion', {
-          token: adminToken,
-          payload: JSON.stringify(payload)
-        });
-
-        clearQuestionForm();
-        renderAdminQuestions();
-        await loadPublic();
-
+        const payload = { QuestionID: document.getElementById('questionId').value, ModuleID: document.getElementById('questionModule').value, TopicID: document.getElementById('questionTopic').value, Question: document.getElementById('questionText').value.trim(), Answer: document.getElementById('answerText').value.trim(), AnswerImageUrl: document.getElementById('answerImageUrl').value.trim(), ImageUrl: document.getElementById('questionImageUrl').value.trim(), Tags: document.getElementById('questionTags').value.trim(), SortOrder: document.getElementById('questionSort').value, IsActive: document.getElementById('questionActive').checked };
+        if (!payload.ModuleID || !payload.TopicID || !payload.Question || !payload.Answer) throw new Error('Module, week, question, and answer are required.');
+        adminData = normalizeData(await postAction('saveQuestion', { token: adminToken, payload: JSON.stringify(payload) }));
+        clearQuestionForm(); renderAdminQuestions(); updateAdminCounts(); await loadPublic();
         setStatus('questionStatus', 'Question saved.', 'ok');
-      } catch (err) {
-        setStatus('questionStatus', err.message || String(err), 'err');
-      }
+      } catch (error) { setStatus('questionStatus', error.message || String(error), 'err'); }
     }
-
-    function editQuestion(q) {
-      document.getElementById('questionId').value = q.QuestionID || '';
-      document.getElementById('questionModule').value = q.ModuleID || '';
+    function editQuestionRecord(button) { editQuestion(decodeRecord(button.dataset.record)); }
+    function editQuestion(question) {
+      document.getElementById('questionId').value = question.QuestionID || '';
+      document.getElementById('questionModule').value = question.ModuleID || '';
       renderQuestionTopicSelect();
-      document.getElementById('questionTopic').value = q.TopicID || '';
-      document.getElementById('questionText').value = q.Question || '';
-      document.getElementById('answerText').value = q.Answer || '';
-      document.getElementById('answerImageUrl').value = q.AnswerImageUrl || '';
-      document.getElementById('questionImageUrl').value = q.ImageUrl || '';
-      document.getElementById('questionTags').value = q.Tags || '';
-      document.getElementById('questionSort').value = q.SortOrder || 1;
-      document.getElementById('questionActive').checked = String(q.IsActive).toLowerCase() !== 'false';
-      showAdminPage('Questions');
+      document.getElementById('questionTopic').value = question.TopicID || '';
+      document.getElementById('questionText').value = question.Question || '';
+      document.getElementById('answerText').value = question.Answer || '';
+      document.getElementById('answerImageUrl').value = question.AnswerImageUrl || '';
+      document.getElementById('questionImageUrl').value = question.ImageUrl || '';
+      document.getElementById('questionTags').value = question.Tags || '';
+      document.getElementById('questionSort').value = question.SortOrder ?? 1;
+      document.getElementById('questionActive').checked = isActive(question.IsActive);
+      showAdminPage('Questions'); document.getElementById('questionText').focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     function clearQuestionForm() {
-      document.getElementById('questionId').value = '';
-      document.getElementById('questionText').value = '';
-      document.getElementById('answerText').value = '';
-      document.getElementById('answerImageUrl').value = '';
-      document.getElementById('questionImageUrl').value = '';
-      document.getElementById('questionTags').value = '';
-      document.getElementById('questionSort').value = 1;
-      document.getElementById('questionActive').checked = true;
-      renderQuestionTopicSelect();
+      ['questionId', 'questionText', 'answerText', 'answerImageUrl', 'questionImageUrl', 'questionTags'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('questionSort').value = 1; document.getElementById('questionActive').checked = true; renderQuestionTopicSelect();
     }
-
-    async function deleteQuestionConfirm(questionId) {
-      if (!confirm('Delete this question?')) return;
-
-      try {
-        adminData = await postAction('deleteQuestion', { token: adminToken, questionId });
-        renderAdminQuestions();
-        await loadPublic();
-      } catch (err) {
-        alert(err.message || err);
-      }
+    async function deleteQuestionConfirm(button) {
+      const questionId = button.dataset.id;
+      if (!confirm('Delete this question? This cannot be undone.')) return;
+      try { adminData = normalizeData(await postAction('deleteQuestion', { token: adminToken, questionId })); renderAdminQuestions(); updateAdminCounts(); await loadPublic(); showToast('Question deleted'); } catch (error) { showToast(error.message || String(error), 'error'); }
     }
-
     function renderAdminQuestions() {
-      const el = document.getElementById('questionsTable');
-      const search = document.getElementById('adminQuestionSearch').value.trim().toLowerCase();
-
-      let list = adminData.questions || [];
-
-      if (search) {
-        list = list.filter(q => {
-          const combined = [
-            q.Question,
-            q.Answer,
-            q.Tags,
-            getModuleNameFrom(adminData.modules, q.ModuleID),
-            getTopicNameFrom(adminData.topics, q.TopicID)
-          ].join(' ').toLowerCase();
-
-          return combined.includes(search);
-        });
-      }
-
-      if (!list.length) {
-        el.innerHTML = '<p>No questions yet.</p>';
-        return;
-      }
-
-      el.innerHTML = list.map(q => `
-        <div class="admin-list-card">
-          <strong>${esc(shortText(q.Question, 90))}</strong>
-          <span>${esc(getModuleNameFrom(adminData.modules, q.ModuleID))} · ${esc(getTopicNameFrom(adminData.topics, q.TopicID))}</span>
-          <small>${esc(shortText(q.Answer, 120))}</small>
-          <div class="small-actions">
-            <button onclick='editQuestion(${jsonAttr(q)})'>Edit</button>
-            <button class="danger" onclick="deleteQuestionConfirm('${escAttr(q.QuestionID)}')">Delete</button>
-          </div>
-        </div>
-      `).join('');
+      const element = document.getElementById('questionsTable');
+      const query = document.getElementById('adminQuestionSearch').value.trim().toLowerCase();
+      let list = adminData.questions;
+      if (query) list = list.filter(question => [question.Question, question.Answer, question.Tags, getModuleNameFrom(adminData.modules, question.ModuleID), getTopicNameFrom(adminData.topics, question.TopicID)].join(' ').toLowerCase().includes(query));
+      if (!list.length) { element.innerHTML = adminEmpty(query ? 'No matching questions' : 'No questions yet'); return; }
+      element.innerHTML = list.map(question => `
+        <article class="admin-list-card"><div class="list-card-main"><span class="record-id">${esc(shortModuleNameFrom(adminData.modules, question.ModuleID))} · ${esc(getTopicNameFrom(adminData.topics, question.TopicID))}</span><strong>${esc(shortText(question.Question, 105))}</strong><small>${esc(shortText(question.Answer, 125))}</small></div><div class="small-actions"><button class="secondary" type="button" data-record="${encodeRecord(question)}" onclick="editQuestionRecord(this)">Edit</button><button class="danger-ghost" type="button" data-id="${escAttr(question.QuestionID)}" onclick="deleteQuestionConfirm(this)">Delete</button></div></article>`).join('');
     }
 
     async function saveShortNoteForm() {
       setStatus('noteStatus', '', '');
-
       try {
-        const payload = {
-          NoteID: document.getElementById('noteId').value,
-          ModuleID: document.getElementById('noteModule').value,
-          TopicID: document.getElementById('noteTopic').value,
-          NoteTitle: document.getElementById('noteTitle').value,
-          ShortNote: document.getElementById('shortNoteText').value,
-          ImageUrl: document.getElementById('noteImageUrl').value,
-          SortOrder: document.getElementById('noteSort').value,
-          IsActive: document.getElementById('noteActive').checked
-        };
-
-        adminData = await postAction('saveShortNote', {
-          token: adminToken,
-          payload: JSON.stringify(payload)
-        });
-
-        clearShortNoteForm();
-        renderAdminNotes();
-        await loadPublic();
-
+        const payload = { NoteID: document.getElementById('noteId').value, ModuleID: document.getElementById('noteModule').value, TopicID: document.getElementById('noteTopic').value, NoteTitle: document.getElementById('noteTitle').value.trim(), ShortNote: document.getElementById('shortNoteText').value.trim(), ImageUrl: document.getElementById('noteImageUrl').value.trim(), SortOrder: document.getElementById('noteSort').value, IsActive: document.getElementById('noteActive').checked };
+        if (!payload.ModuleID || !payload.NoteTitle || !payload.ShortNote) throw new Error('Module, note title, and note text are required.');
+        adminData = normalizeData(await postAction('saveShortNote', { token: adminToken, payload: JSON.stringify(payload) }));
+        clearShortNoteForm(); renderAdminNotes(); updateAdminCounts(); await loadPublic();
         setStatus('noteStatus', 'Short note saved.', 'ok');
-      } catch (err) {
-        setStatus('noteStatus', err.message || String(err), 'err');
-      }
+      } catch (error) { setStatus('noteStatus', error.message || String(error), 'err'); }
     }
-
-    function editShortNote(n) {
-      document.getElementById('noteId').value = n.NoteID || '';
-      document.getElementById('noteModule').value = n.ModuleID || '';
+    function editNoteRecord(button) { editShortNote(decodeRecord(button.dataset.record)); }
+    function editShortNote(note) {
+      document.getElementById('noteId').value = note.NoteID || '';
+      document.getElementById('noteModule').value = note.ModuleID || '';
       renderNoteTopicSelect();
-      document.getElementById('noteTopic').value = n.TopicID || '';
-      document.getElementById('noteTitle').value = n.NoteTitle || '';
-      document.getElementById('shortNoteText').value = n.ShortNote || '';
-      document.getElementById('noteImageUrl').value = n.ImageUrl || '';
-      document.getElementById('noteSort').value = n.SortOrder || 1;
-      document.getElementById('noteActive').checked = String(n.IsActive).toLowerCase() !== 'false';
-      showAdminPage('Notes');
+      document.getElementById('noteTopic').value = note.TopicID || '';
+      document.getElementById('noteTitle').value = note.NoteTitle || '';
+      document.getElementById('shortNoteText').value = note.ShortNote || '';
+      document.getElementById('noteImageUrl').value = note.ImageUrl || '';
+      document.getElementById('noteSort').value = note.SortOrder ?? 1;
+      document.getElementById('noteActive').checked = isActive(note.IsActive);
+      showAdminPage('Notes'); document.getElementById('noteTitle').focus();
     }
-
-    function clearShortNoteForm() {
-      document.getElementById('noteId').value = '';
-      document.getElementById('noteTitle').value = '';
-      document.getElementById('shortNoteText').value = '';
-      document.getElementById('noteImageUrl').value = '';
-      document.getElementById('noteSort').value = 1;
-      document.getElementById('noteActive').checked = true;
-      renderNoteTopicSelect();
+    function clearShortNoteForm() { ['noteId', 'noteTitle', 'shortNoteText', 'noteImageUrl'].forEach(id => document.getElementById(id).value = ''); document.getElementById('noteSort').value = 1; document.getElementById('noteActive').checked = true; renderNoteTopicSelect(); }
+    async function deleteShortNoteConfirm(button) {
+      const noteId = button.dataset.id;
+      if (!confirm('Delete this short note? This cannot be undone.')) return;
+      try { adminData = normalizeData(await postAction('deleteShortNote', { token: adminToken, noteId })); renderAdminNotes(); updateAdminCounts(); await loadPublic(); showToast('Note deleted'); } catch (error) { showToast(error.message || String(error), 'error'); }
     }
-
-    async function deleteShortNoteConfirm(noteId) {
-      if (!confirm('Delete this short note?')) return;
-
-      try {
-        adminData = await postAction('deleteShortNote', { token: adminToken, noteId });
-        renderAdminNotes();
-        await loadPublic();
-      } catch (err) {
-        alert(err.message || err);
-      }
-    }
-
     function renderAdminNotes() {
-      const el = document.getElementById('notesTable');
-      const search = document.getElementById('adminNoteSearch').value.trim().toLowerCase();
-
-      let list = adminData.notes || [];
-
-      if (search) {
-        list = list.filter(n => {
-          const combined = [
-            n.NoteTitle,
-            n.ShortNote,
-            getModuleNameFrom(adminData.modules, n.ModuleID),
-            getTopicNameFrom(adminData.topics, n.TopicID)
-          ].join(' ').toLowerCase();
-
-          return combined.includes(search);
-        });
-      }
-
-      if (!list.length) {
-        el.innerHTML = '<p>No short notes yet.</p>';
-        return;
-      }
-
-      el.innerHTML = list.map(n => `
-        <div class="admin-list-card">
-          <strong>${esc(n.NoteTitle)}</strong>
-          <span>${esc(getModuleNameFrom(adminData.modules, n.ModuleID))} · ${n.TopicID ? esc(getTopicNameFrom(adminData.topics, n.TopicID)) : 'Module General'}</span>
-          <small>${esc(shortText(n.ShortNote, 120))}</small>
-          <div class="small-actions">
-            <button onclick='editShortNote(${jsonAttr(n)})'>Edit</button>
-            <button class="danger" onclick="deleteShortNoteConfirm('${escAttr(n.NoteID)}')">Delete</button>
-          </div>
-        </div>
-      `).join('');
+      const element = document.getElementById('notesTable');
+      const query = document.getElementById('adminNoteSearch').value.trim().toLowerCase();
+      let list = adminData.notes;
+      if (query) list = list.filter(note => [note.NoteTitle, note.ShortNote, getModuleNameFrom(adminData.modules, note.ModuleID), getTopicNameFrom(adminData.topics, note.TopicID)].join(' ').toLowerCase().includes(query));
+      if (!list.length) { element.innerHTML = adminEmpty(query ? 'No matching notes' : 'No notes yet'); return; }
+      element.innerHTML = list.map(note => `
+        <article class="admin-list-card"><div class="list-card-main"><span class="record-id">${esc(shortModuleNameFrom(adminData.modules, note.ModuleID))} · ${note.TopicID ? esc(getTopicNameFrom(adminData.topics, note.TopicID)) : 'Module general'}</span><strong>${esc(note.NoteTitle)}</strong><small>${esc(shortText(note.ShortNote, 125))}</small></div><div class="small-actions"><button class="secondary" type="button" data-record="${encodeRecord(note)}" onclick="editNoteRecord(this)">Edit</button><button class="danger-ghost" type="button" data-id="${escAttr(note.NoteID)}" onclick="deleteShortNoteConfirm(this)">Delete</button></div></article>`).join('');
     }
+
+    function renderAllAdmin() { renderAdminSelects(); renderAdminModules(); renderAdminTopics(); renderAdminQuestions(); renderAdminNotes(); updateAdminCounts(); }
 
     async function changePassword() {
       setStatus('passwordStatus', '', '');
-
       try {
         const newPassword = document.getElementById('newAdminPassword').value;
-
-        const res = await postAction('changeAdminPassword', {
-          token: adminToken,
-          newPassword
-        });
-
+        if (newPassword.length < 6) throw new Error('Use at least six characters.');
+        const response = await postAction('changeAdminPassword', { token: adminToken, newPassword });
         document.getElementById('newAdminPassword').value = '';
-        setStatus('passwordStatus', res.message || 'Password changed.', 'ok');
-      } catch (err) {
-        setStatus('passwordStatus', err.message || String(err), 'err');
-      }
+        setStatus('passwordStatus', response.message || 'Password updated.', 'ok');
+      } catch (error) { setStatus('passwordStatus', error.message || String(error), 'err'); }
+    }
+
+    function togglePassword(inputId, button) {
+      const input = document.getElementById(inputId);
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      button.textContent = show ? 'Hide' : 'Show';
+      button.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
     }
 
     function getImageUrl(url) {
-      url = String(url || '').trim();
-
-      const match1 = url.match(/\/file\/d\/([^/]+)/);
-      if (match1 && match1[1]) {
-        return 'https://drive.google.com/thumbnail?id=' + match1[1] + '&sz=w1200';
-      }
-
-      const match2 = url.match(/[?&]id=([^&]+)/);
-      if (match2 && match2[1]) {
-        return 'https://drive.google.com/thumbnail?id=' + match2[1] + '&sz=w1200';
-      }
-
-      return url;
+      const value = String(url || '').trim();
+      const fileMatch = value.match(/\/file\/d\/([^/]+)/);
+      if (fileMatch && fileMatch[1]) return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(fileMatch[1]) + '&sz=w1600';
+      const idMatch = value.match(/[?&]id=([^&]+)/);
+      if (idMatch && idMatch[1]) return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(idMatch[1]) + '&sz=w1600';
+      return value;
     }
 
-    function getModuleName(moduleId) {
-      return getModuleNameFrom(appData.modules, moduleId);
-    }
-
-    function getTopicName(topicId) {
-      return getTopicNameFrom(appData.topics, topicId);
-    }
-
-    function getModuleNameFrom(modules, moduleId) {
-      const m = modules.find(x => String(x.ModuleID) === String(moduleId));
-      return m ? `${m.ModuleID} - ${m.ModuleName}` : moduleId || '';
-    }
-
-    function getTopicNameFrom(topics, topicId) {
-      const t = topics.find(x => String(x.TopicID) === String(topicId));
-      return t ? t.TopicName : topicId || '';
-    }
+    function getModuleName(moduleId) { return getModuleNameFrom(appData.modules, moduleId); }
+    function getTopicName(topicId) { return getTopicNameFrom(appData.topics, topicId); }
+    function getModuleNameFrom(modules, moduleId) { const module = modules.find(item => String(item.ModuleID) === String(moduleId)); return module ? `${module.ModuleID} — ${module.ModuleName}` : moduleId || ''; }
+    function shortModuleName(moduleId) { return shortModuleNameFrom(appData.modules, moduleId); }
+    function shortModuleNameFrom(modules, moduleId) { const module = modules.find(item => String(item.ModuleID) === String(moduleId)); return module ? module.ModuleID : moduleId || ''; }
+    function getTopicNameFrom(topics, topicId) { const topic = topics.find(item => String(item.TopicID) === String(topicId)); return topic ? topic.TopicName : topicId || ''; }
+    function isActive(value) { return String(value).toLowerCase() !== 'false'; }
+    function adminEmpty(message) { return `<div class="admin-empty"><span aria-hidden="true">○</span><p>${esc(message)}</p></div>`; }
 
     function setStatus(id, message, type) {
-      const el = document.getElementById(id);
-      el.className = 'status';
-
-      if (!message) {
-        el.textContent = '';
-        return;
-      }
-
-      el.textContent = message;
-      el.classList.add(type);
+      const element = document.getElementById(id);
+      element.className = 'status';
+      element.textContent = message || '';
+      if (message && type) element.classList.add(type);
     }
 
-    function esc(value) {
-      return String(value ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+    function showToast(message, type = 'ok') {
+      const toast = document.getElementById('toast');
+      clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.className = `toast show ${type}`;
+      toastTimer = setTimeout(() => toast.className = 'toast', 2800);
     }
 
-    function escAttr(value) {
-      return esc(value).replaceAll('\n', ' ');
-    }
-
-    function nl2br(value) {
-      return String(value).replaceAll('\n', '<br>');
-    }
-
-    function shortText(value, limit) {
-      value = String(value || '');
-      return value.length > limit ? value.substring(0, limit) + '...' : value;
-    }
-
-    function jsonAttr(obj) {
-      return JSON.stringify(obj)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll("'", '&#039;');
-    }
+    function encodeRecord(object) { return escAttr(encodeURIComponent(JSON.stringify(object))); }
+    function decodeRecord(value) { return JSON.parse(decodeURIComponent(value)); }
+    function esc(value) { return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;'); }
+    function escAttr(value) { return esc(value).replaceAll('\n', ' '); }
+    function nl2br(value) { return String(value).replaceAll('\n', '<br>'); }
+    function shortText(value, limit) { const text = String(value || ''); return text.length > limit ? text.substring(0, limit).trimEnd() + '…' : text; }
   </script>
 </body>
 </html>
