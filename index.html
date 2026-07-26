@@ -185,6 +185,29 @@
           <button class="secondary" type="button" onclick="showView('home', true)">Change selection</button>
         </div>
 
+        <div id="testSetupBox" class="card test-setup-card">
+  <span class="eyebrow">Scored test</span>
+  <h2>Create your test</h2>
+  <p>Questions will use your currently selected module and week.</p>
+
+  <div class="form-row">
+    <label for="testQuestionCount">Number of questions</label>
+    <select id="testQuestionCount">
+      <option value="5">5 questions</option>
+      <option value="10" selected>10 questions</option>
+      <option value="15">15 questions</option>
+      <option value="20">20 questions</option>
+    </select>
+  </div>
+
+  <button
+    class="primary large"
+    type="button"
+    onclick="startScoredTest()"
+  >
+    Start scored test
+  </button>
+</div>
         <div id="randomQuestionBox" class="random-question-box">
           <div class="random-placeholder">
             <span class="placeholder-mark" aria-hidden="true">?</span>
@@ -761,7 +784,244 @@
       showView('random');
       showRandomQuestion();
     }
+    function shuffleTestQuestions(questions) {
+  const shuffled = [...questions];
 
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+
+    [shuffled[i], shuffled[randomIndex]] = [
+      shuffled[randomIndex],
+      shuffled[i]
+    ];
+  }
+
+  return shuffled;
+}
+
+function startScoredTest() {
+  const availableQuestions = getFilteredQuestions();
+
+  if (!availableQuestions.length) {
+    showToast(
+      'No questions are available for this selection.',
+      'error'
+    );
+    return;
+  }
+
+  const requestedCount =
+    Number(document.getElementById('testQuestionCount').value) || 10;
+
+  testQuestions = shuffleTestQuestions(availableQuestions)
+    .slice(0, Math.min(requestedCount, availableQuestions.length));
+
+  testIndex = 0;
+  testInProgress = true;
+
+  testScore = {
+    correct: 0,
+    wrong: 0,
+    skipped: 0
+  };
+
+  testAnswerHistory = [];
+
+  document
+    .getElementById('testSetupBox')
+    .classList.add('hidden');
+
+  document
+    .querySelector('.random-controls')
+    ?.classList.add('hidden');
+
+  renderScoredTestQuestion();
+}
+function renderScoredTestQuestion() {
+  if (!testInProgress || !testQuestions.length) return;
+
+  const question = testQuestions[testIndex];
+  const completedCount =
+    testScore.correct + testScore.wrong + testScore.skipped;
+
+  document.getElementById('randomQuestionBox').innerHTML = `
+    <div class="test-progress">
+      <strong>
+        Question ${testIndex + 1} of ${testQuestions.length}
+      </strong>
+
+      <span>
+        Correct: ${testScore.correct}
+        · Wrong: ${testScore.wrong}
+        · Skipped: ${testScore.skipped}
+      </span>
+    </div>
+
+    ${renderQuestionCards([question], { random: true })}
+
+    <div class="page-actions test-marking-actions">
+      <button
+        class="primary"
+        type="button"
+        onclick="markTestAnswer('correct')"
+      >
+        ✓ I got it correct
+      </button>
+
+      <button
+        class="secondary"
+        type="button"
+        onclick="markTestAnswer('wrong')"
+      >
+        ✕ I got it wrong
+      </button>
+
+      <button
+        class="secondary"
+        type="button"
+        onclick="markTestAnswer('skipped')"
+      >
+        Skip
+      </button>
+    </div>
+
+    <p>
+      ${completedCount} of ${testQuestions.length}
+      questions completed
+    </p>
+  `;
+
+  setTimeout(() => {
+    renderMath('#randomQuestionBox');
+  }, 40);
+}
+
+function markTestAnswer(result) {
+  if (!testInProgress) return;
+
+  const question = testQuestions[testIndex];
+
+  if (result === 'correct') {
+    testScore.correct++;
+  } else if (result === 'wrong') {
+    testScore.wrong++;
+  } else {
+    testScore.skipped++;
+  }
+
+  testAnswerHistory.push({
+    QuestionID: question.QuestionID,
+    ModuleID: question.ModuleID,
+    TopicID: question.TopicID,
+    Question: question.Question,
+    Answer: question.Answer,
+    result
+  });
+
+  testIndex++;
+
+  if (testIndex >= testQuestions.length) {
+    finishScoredTest();
+    return;
+  }
+
+  renderScoredTestQuestion();
+}
+
+function finishScoredTest() {
+  testInProgress = false;
+
+  const total = testQuestions.length;
+  const percentage = total
+    ? Math.round((testScore.correct / total) * 100)
+    : 0;
+
+  const mistakeCount =
+    testScore.wrong + testScore.skipped;
+
+  document.getElementById('randomQuestionBox').innerHTML = `
+    <div class="card">
+      <span class="eyebrow">Test completed</span>
+
+      <h2>Your score: ${testScore.correct} / ${total}</h2>
+
+      <p>${percentage}% correct</p>
+
+      <div class="stats-panel">
+        <div class="stat-item">
+          <div>
+            <strong>${testScore.correct}</strong>
+            <span>correct</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div>
+            <strong>${testScore.wrong}</strong>
+            <span>wrong</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div>
+            <strong>${testScore.skipped}</strong>
+            <span>skipped</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-actions">
+        ${
+          mistakeCount > 0
+            ? `
+              <button
+                class="secondary large"
+                type="button"
+                onclick="reviewTestMistakes()"
+              >
+                Review wrong and skipped (${mistakeCount})
+              </button>
+            `
+            : ''
+        }
+
+        <button
+          class="primary large"
+          type="button"
+          onclick="showScoredTestSetup()"
+        >
+          Start another test
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function showScoredTestSetup() {
+  testQuestions = [];
+  testIndex = 0;
+  testInProgress = false;
+  testAnswerHistory = [];
+
+  testScore = {
+    correct: 0,
+    wrong: 0,
+    skipped: 0
+  };
+
+  document
+    .getElementById('testSetupBox')
+    .classList.remove('hidden');
+
+  document.getElementById('randomQuestionBox').innerHTML = `
+    <div class="random-placeholder">
+      <span class="placeholder-mark" aria-hidden="true">?</span>
+      <h2>Ready when you are</h2>
+      <p>Select the number of questions and begin your test.</p>
+    </div>
+  `;
+}
+    
     function updateRandomContext() {
       document.getElementById('randomFilterLabel').textContent = `Drawing from: ${getFilterLabel()}.`;
     }
