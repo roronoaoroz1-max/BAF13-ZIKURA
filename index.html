@@ -300,6 +300,215 @@
         display: none;
       }
     }
+
+    /* =====================================================
+       AI ANSWER GRADER
+    ===================================================== */
+
+    .ai-answer-box {
+      margin-top: 16px;
+      padding: 18px;
+      border: 1px solid var(--line, #ddd9ce);
+      border-radius: 16px;
+      background: var(--surface-2, #eeece4);
+    }
+
+    .ai-answer-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .ai-answer-heading > div {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ai-answer-heading strong {
+      color: var(--text, #20231f);
+      font-size: .95rem;
+    }
+
+    .ai-badge {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--accent-strong, #244b3a);
+      background: var(--accent-soft, #eaf2ec);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .student-answer-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted, #686d66);
+      font-size: .77rem;
+      font-weight: 800;
+    }
+
+    .student-answer-input {
+      width: 100%;
+      min-height: 105px;
+      resize: vertical;
+    }
+
+    .ai-answer-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .ai-grade-button {
+      min-width: 170px;
+    }
+
+    .ai-grade-button:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
+    .ai-grade-result {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--line, #ddd9ce);
+      border-radius: 14px;
+      background: var(--surface, #fff);
+    }
+
+    .ai-result-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .ai-result-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ai-result-status > div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-result-status small {
+      color: var(--muted, #686d66);
+      font-size: .72rem;
+    }
+
+    .ai-result-icon {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-soft, #eaf2ec);
+      font-weight: 900;
+    }
+
+    .ai-score {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .ai-score strong {
+      color: var(--accent-strong, #244b3a);
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .ai-score span {
+      color: var(--muted, #686d66);
+      font-size: .8rem;
+    }
+
+    .ai-feedback {
+      margin: 14px 0 0;
+      color: var(--text, #20231f);
+    }
+
+    .ai-missing-points {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line, #ddd9ce);
+    }
+
+    .ai-missing-points > strong {
+      font-size: .82rem;
+    }
+
+    .ai-missing-points ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      color: var(--muted, #686d66);
+    }
+
+    .ai-grade-correct {
+      border-color: color-mix(in srgb, var(--accent, #315f4b) 50%, var(--line, #ddd9ce));
+      background: var(--accent-soft, #eaf2ec);
+    }
+
+    .ai-grade-incorrect,
+    .ai-grade-error {
+      border-color: color-mix(in srgb, var(--danger, #a34d3f) 45%, var(--line, #ddd9ce));
+    }
+
+    .ai-grade-incorrect .ai-result-icon,
+    .ai-grade-error .ai-result-icon {
+      color: var(--danger, #a34d3f);
+    }
+
+    .ai-result-loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ai-result-loading > div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-result-loading small {
+      color: var(--muted, #686d66);
+    }
+
+    [data-theme="dark"] .ai-answer-box {
+      background: var(--surface-2, #282d27);
+    }
+
+    @media (max-width: 520px) {
+      .ai-answer-box {
+        padding: 15px;
+      }
+
+      .ai-answer-actions {
+        display: grid;
+      }
+
+      .ai-grade-button {
+        width: 100%;
+      }
+
+      .ai-result-top {
+        align-items: flex-start;
+      }
+    }
+
   </style>
 
   <script>
@@ -1527,7 +1736,14 @@ function loadMoreQuestions() {
     }
 
     function renderQuestionCards(questions, options = {}) {
-      if (!questions.length) return renderEmptyState('No questions found', 'Try another search, module, or week.', 'Clear filters', 'clearFilters()');
+      if (!questions.length) {
+        return renderEmptyState(
+          'No questions found',
+          'Try another search, module, or week.',
+          'Clear filters',
+          'clearFilters()'
+        );
+      }
 
       return questions.map((question, index) => {
         const questionId = getQuestionKey(question);
@@ -1535,32 +1751,94 @@ function loadMoreQuestions() {
         const isBookmarked = studyState.bookmarks.includes(questionId);
         const isWeak = studyState.weak.includes(questionId);
         const isReviewed = studyState.reviewed.includes(questionId);
-        const questionImage = question.ImageUrl ? `<div class="media-frame"><img class="main-img" src="${escAttr(getImageUrl(question.ImageUrl))}" alt="Question reference" loading="lazy" /></div>` : '';
-        const answerImage = question.AnswerImageUrl ? `<div class="media-frame answer-media"><img class="main-img" src="${escAttr(getImageUrl(question.AnswerImageUrl))}" alt="Answer reference" loading="lazy" /></div>` : '';
-        const tags = String(question.Tags || '').split(',').map(tag => tag.trim()).filter(Boolean).slice(0, 5).map(tag => `<span>${esc(tag)}</span>`).join('');
-        const number = options.random ? 'Random' : String(index + 1).padStart(2, '0');
+
+        const questionImage = question.ImageUrl
+          ? `<div class="media-frame"><img class="main-img" src="${escAttr(getImageUrl(question.ImageUrl))}" alt="Question reference" loading="lazy" /></div>`
+          : '';
+
+        const answerImage = question.AnswerImageUrl
+          ? `<div class="media-frame answer-media"><img class="main-img" src="${escAttr(getImageUrl(question.AnswerImageUrl))}" alt="Answer reference" loading="lazy" /></div>`
+          : '';
+
+        const tags = String(question.Tags || '')
+          .split(',')
+          .map(tag => tag.trim())
+          .filter(Boolean)
+          .slice(0, 5)
+          .map(tag => `<span>${esc(tag)}</span>`)
+          .join('');
+
+        const number = options.random
+          ? 'Random'
+          : String(index + 1).padStart(2, '0');
+
         return `
           <article class="question-card ${options.random ? 'random-card' : ''} ${isBookmarked ? 'is-bookmarked' : ''} ${isWeak ? 'is-weak' : ''} ${isReviewed ? 'is-reviewed' : ''}" data-question-id="${escAttr(encodedQuestionId)}">
             <div class="question-topline">
-              <div class="card-meta"><span class="module-badge">${esc(shortModuleName(question.ModuleID))}</span><span>${esc(getTopicName(question.TopicID) || 'General')}</span></div>
+              <div class="card-meta">
+                <span class="module-badge">${esc(shortModuleName(question.ModuleID))}</span>
+                <span>${esc(getTopicName(question.TopicID) || 'General')}</span>
+              </div>
               <div class="question-top-actions">
                 ${isReviewed ? '<span class="reviewed-badge">Reviewed</span>' : ''}
                 <span class="question-number">${esc(number)}</span>
               </div>
             </div>
+
             <h2 class="question-title">${nl2br(esc(question.Question || 'Untitled question'))}</h2>
             ${questionImage}
             ${tags ? `<div class="tag-line">${tags}</div>` : ''}
+
             <div class="question-actions">
-              <button class="answer-toggle" type="button" aria-expanded="false" onclick="toggleAnswer(this)"><span>Reveal answer</span><span class="toggle-arrow" aria-hidden="true">↓</span></button>
+              <button class="answer-toggle" type="button" aria-expanded="false" onclick="toggleAnswer(this)">
+                <span>Reveal answer</span>
+                <span class="toggle-arrow" aria-hidden="true">↓</span>
+              </button>
+
               <div class="question-state-actions" aria-label="Question study status">
-                <button class="question-state-button ${isBookmarked ? 'active' : ''}" type="button" data-question-action="bookmark" aria-pressed="${isBookmarked}" onclick="toggleQuestionBookmark('${escAttr(encodedQuestionId)}')"><span aria-hidden="true">★</span><span>${isBookmarked ? 'Bookmarked' : 'Bookmark'}</span></button>
-                <button class="question-state-button ${isWeak ? 'active' : ''}" type="button" data-question-action="weak" aria-pressed="${isWeak}" onclick="toggleQuestionWeak('${escAttr(encodedQuestionId)}')"><span aria-hidden="true">!</span><span>Needs work</span></button>
-                <button class="question-state-button ${isReviewed ? 'active' : ''}" type="button" data-question-action="reviewed" aria-pressed="${isReviewed}" onclick="markQuestionReviewed('${escAttr(encodedQuestionId)}')"><span aria-hidden="true">✓</span><span>${isReviewed ? 'Reviewed' : 'Mark reviewed'}</span></button>
+                <button class="question-state-button ${isBookmarked ? 'active' : ''}" type="button" data-question-action="bookmark" aria-pressed="${isBookmarked}" onclick="toggleQuestionBookmark('${escAttr(encodedQuestionId)}')">
+                  <span aria-hidden="true">★</span>
+                  <span>${isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+                </button>
+
+                <button class="question-state-button ${isWeak ? 'active' : ''}" type="button" data-question-action="weak" aria-pressed="${isWeak}" onclick="toggleQuestionWeak('${escAttr(encodedQuestionId)}')">
+                  <span aria-hidden="true">!</span>
+                  <span>Needs work</span>
+                </button>
+
+                <button class="question-state-button ${isReviewed ? 'active' : ''}" type="button" data-question-action="reviewed" aria-pressed="${isReviewed}" onclick="markQuestionReviewed('${escAttr(encodedQuestionId)}')">
+                  <span aria-hidden="true">✓</span>
+                  <span>${isReviewed ? 'Reviewed' : 'Mark reviewed'}</span>
+                </button>
               </div>
             </div>
+
+            <div class="ai-answer-box">
+              <div class="ai-answer-heading">
+                <div>
+                  <span class="eyebrow">AI answer check</span>
+                  <strong>Try answering before revealing</strong>
+                </div>
+                <span class="ai-badge" aria-hidden="true">AI</span>
+              </div>
+
+              <label class="student-answer-label">Your answer</label>
+              <textarea class="student-answer-input" rows="4" placeholder="Type your answer here..."></textarea>
+
+              <div class="ai-answer-actions">
+                <button class="primary ai-grade-button" type="button" onclick="gradeStudentAnswer(this)">
+                  Check answer with AI
+                </button>
+              </div>
+
+              <div class="ai-grade-result hidden" aria-live="polite"></div>
+            </div>
+
             <div class="answer" hidden>
-              <div class="answer-heading"><span>Answer</span><button type="button" class="copy-button" onclick="copyAnswer(this)">Copy</button></div>
+              <div class="answer-heading">
+                <span>Official answer</span>
+                <button type="button" class="copy-button" onclick="copyAnswer(this)">Copy</button>
+              </div>
               <div class="answer-copy-source">${nl2br(esc(question.Answer || 'No answer has been added yet.'))}</div>
               ${answerImage}
             </div>
@@ -1610,6 +1888,176 @@ function loadMoreQuestions() {
         showToast('Answer copied');
       } catch (error) {
         showToast('Could not copy the answer', 'error');
+      }
+    }
+
+    async function gradeStudentAnswer(button) {
+      const card = button.closest('.question-card');
+
+      if (!card) {
+        showToast('Question card could not be found.', 'error');
+        return;
+      }
+
+      const textarea = card.querySelector('.student-answer-input');
+      const resultBox = card.querySelector('.ai-grade-result');
+      const studentAnswer = textarea?.value.trim() || '';
+
+      if (!studentAnswer) {
+        textarea?.focus();
+        showToast('Type your answer first.', 'error');
+        return;
+      }
+
+      const encodedQuestionId = card.dataset.questionId || '';
+      let questionId = '';
+
+      try {
+        questionId = decodeURIComponent(encodedQuestionId);
+      } catch {
+        questionId = encodedQuestionId;
+      }
+
+      const question = appData.questions.find(
+        item => String(getQuestionKey(item)) === String(questionId)
+      );
+
+      if (!question) {
+        showToast('Question could not be found.', 'error');
+        return;
+      }
+
+      if (!question.Answer) {
+        showToast('This question has no official answer.', 'error');
+        return;
+      }
+
+      const originalButtonText = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Checking answer…';
+
+      if (textarea) textarea.disabled = true;
+
+      resultBox.className = 'ai-grade-result ai-grade-loading';
+      resultBox.innerHTML = `
+        <div class="ai-result-loading">
+          <span class="spinner" aria-hidden="true"></span>
+          <div>
+            <strong>Checking your answer…</strong>
+            <small>AI is comparing it with the official answer.</small>
+          </div>
+        </div>
+      `;
+
+      try {
+        if (!window.supabaseClient?.functions) {
+          throw new Error('AI grading service is unavailable.');
+        }
+
+        const { data, error } = await window.supabaseClient.functions.invoke(
+          'ai-grader',
+          {
+            body: {
+              question: String(question.Question || ''),
+              officialAnswer: String(question.Answer || ''),
+              studentAnswer
+            }
+          }
+        );
+
+        if (error) {
+          console.error('AI grader function error:', error);
+          throw error;
+        }
+
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+
+        if (!data?.result) {
+          throw new Error('The AI grader returned an invalid response.');
+        }
+
+        const result = String(data.result).toLowerCase();
+        const score = Math.max(0, Math.min(10, Number(data.score) || 0));
+        const feedback = String(data.feedback || 'Answer checked.');
+        const missingPoints = Array.isArray(data.missing_points)
+          ? data.missing_points
+          : [];
+
+        let resultTitle = 'Answer checked';
+        let resultIcon = '●';
+        let resultClass = 'ai-grade-partial';
+
+        if (result === 'correct') {
+          resultTitle = 'Correct';
+          resultIcon = '✓';
+          resultClass = 'ai-grade-correct';
+        } else if (result === 'partially_correct') {
+          resultTitle = 'Partially correct';
+          resultIcon = '◐';
+          resultClass = 'ai-grade-partial';
+        } else {
+          resultTitle = 'Incorrect';
+          resultIcon = '✕';
+          resultClass = 'ai-grade-incorrect';
+        }
+
+        const missingHtml = missingPoints.length
+          ? `
+            <div class="ai-missing-points">
+              <strong>Points to improve</strong>
+              <ul>
+                ${missingPoints.map(point => `<li>${esc(point)}</li>`).join('')}
+              </ul>
+            </div>
+          `
+          : '';
+
+        resultBox.className = `ai-grade-result ${resultClass}`;
+        resultBox.innerHTML = `
+          <div class="ai-result-top">
+            <div class="ai-result-status">
+              <span class="ai-result-icon" aria-hidden="true">${resultIcon}</span>
+              <div>
+                <strong>${esc(resultTitle)}</strong>
+                <small>AI assessment</small>
+              </div>
+            </div>
+
+            <div class="ai-score">
+              <strong>${esc(score)}</strong>
+              <span>/10</span>
+            </div>
+          </div>
+
+          <p class="ai-feedback">${nl2br(esc(feedback))}</p>
+          ${missingHtml}
+        `;
+
+        const studyResult = result === 'correct' ? 'correct' : 'wrong';
+        recordQuestionAttempt(question, studyResult);
+        refreshQuestionState(questionId);
+
+        setTimeout(() => renderMath(resultBox), 30);
+      } catch (error) {
+        console.error('AI grading error:', error);
+
+        resultBox.className = 'ai-grade-result ai-grade-error';
+        resultBox.innerHTML = `
+          <strong>AI grading failed</strong>
+          <p>${esc(error?.message || 'Could not check your answer.')}</p>
+          <small>Your answer has not been changed.</small>
+        `;
+
+        showToast('Could not check the answer.', 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = originalButtonText === 'Check answer with AI'
+          ? 'Check answer again'
+          : originalButtonText;
+
+        if (textarea) textarea.disabled = false;
       }
     }
 
