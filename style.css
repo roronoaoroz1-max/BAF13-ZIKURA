@@ -1552,3 +1552,210 @@ textarea:focus {
     min-width: 0;
   }
 }
+/* =====================================================
+   AI ANSWER GRADER
+===================================================== */
+
+.ai-answer-box {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+
+.ai-answer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.ai-answer-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-answer-heading strong {
+  color: var(--text);
+  font-size: .95rem;
+}
+
+.ai-badge {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+.student-answer-label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: .77rem;
+  font-weight: 800;
+}
+
+.student-answer-input {
+  width: 100%;
+  min-height: 105px;
+  resize: vertical;
+}
+
+.ai-answer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.ai-grade-button {
+  min-width: 170px;
+}
+
+.ai-grade-button:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.ai-grade-result {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.ai-result-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ai-result-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-result-status > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-result-status small {
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.ai-result-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  font-weight: 900;
+}
+
+.ai-score {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.ai-score strong {
+  color: var(--accent-strong);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.ai-score span {
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.ai-feedback {
+  margin: 14px 0 0;
+  color: var(--text);
+}
+
+.ai-missing-points {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.ai-missing-points > strong {
+  font-size: .82rem;
+}
+
+.ai-missing-points ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.ai-grade-correct {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  background: var(--accent-soft);
+}
+
+.ai-grade-partial {
+  border-color: var(--line);
+}
+
+.ai-grade-incorrect,
+.ai-grade-error {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+}
+
+.ai-grade-incorrect .ai-result-icon,
+.ai-grade-error .ai-result-icon {
+  color: var(--danger);
+}
+
+.ai-result-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-result-loading > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-result-loading small {
+  color: var(--muted);
+}
+
+@media (max-width: 520px) {
+  .ai-answer-box {
+    padding: 15px;
+  }
+
+  .ai-answer-actions {
+    display: grid;
+  }
+
+  .ai-grade-button {
+    width: 100%;
+  }
+
+  .ai-result-top {
+    align-items: flex-start;
+  }
+}
