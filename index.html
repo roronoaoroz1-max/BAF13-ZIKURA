@@ -952,12 +952,56 @@
 
         if (firstError) throw firstError;
 
-        appData = {
-          modules: modulesResult.data || [],
-          topics: topicsResult.data || [],
-          questions: questionsResult.data || [],
-          notes: notesResult.data || []
-        };
+       // PUBLIC VIEW: only active content should be visible
+
+const activeModules = (modulesResult.data || [])
+  .filter(module => module.IsActive === true);
+
+const activeModuleIds = new Set(
+  activeModules.map(module => String(module.ModuleID))
+);
+
+
+const activeTopics = (topicsResult.data || [])
+  .filter(topic =>
+    topic.IsActive === true &&
+    activeModuleIds.has(String(topic.ModuleID))
+  );
+
+const activeTopicIds = new Set(
+  activeTopics.map(topic => String(topic.TopicID))
+);
+
+
+const activeQuestions = (questionsResult.data || [])
+  .filter(question =>
+    question.IsActive === true &&
+    activeModuleIds.has(String(question.ModuleID)) &&
+    activeTopicIds.has(String(question.TopicID))
+  );
+
+
+const activeNotes = (notesResult.data || [])
+  .filter(note => {
+    if (note.IsActive !== true) return false;
+
+    if (!activeModuleIds.has(String(note.ModuleID))) {
+      return false;
+    }
+
+    // Module-general notes are allowed without a TopicID
+    if (!note.TopicID) return true;
+
+    return activeTopicIds.has(String(note.TopicID));
+  });
+
+
+appData = {
+  modules: activeModules,
+  topics: activeTopics,
+  questions: activeQuestions,
+  notes: activeNotes
+};
 
         const appName = settingsResult.data?.Value || 'BAF13 — ZIKURA';
 
