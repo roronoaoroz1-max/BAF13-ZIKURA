@@ -901,6 +901,24 @@
                   <div class="form-split"><div class="form-row"><label for="answerImageUrl">Answer image URL</label><input id="answerImageUrl" type="url" placeholder="Paste solution image URL" /></div><div class="form-row"><label for="questionImageUrl">Question image URL</label><input id="questionImageUrl" type="url" placeholder="Paste question image URL" /></div></div>
                   <div class="form-split"><div class="form-row"><label for="questionTags">Tags</label><input id="questionTags" placeholder="e.g. Case study, Week 4" /></div><div class="form-row"><label for="questionSort">Sort order</label><input id="questionSort" type="number" value="1" min="0" /></div></div>
                   <label class="toggle-row" for="questionActive"><input id="questionActive" type="checkbox" checked /><span class="toggle-ui" aria-hidden="true"></span><span><strong>Active</strong><small>Visible to students</small></span></label>
+                  <label class="toggle-row" for="questionAllowAI">
+  <input
+    id="questionAllowAI"
+    type="checkbox"
+  />
+
+  <span
+    class="toggle-ui"
+    aria-hidden="true"
+  ></span>
+
+  <span>
+    <strong>AI Assist</strong>
+    <small>
+      Allow students to check this answer with AI
+    </small>
+  </span>
+</label>
                   <div class="form-actions"><button class="primary" type="button" onclick="saveQuestionForm()">Save question</button><button class="secondary" type="button" onclick="clearQuestionForm()">Clear</button></div>
                   <div id="questionStatus" class="status" role="status" aria-live="polite"></div>
                 </div>
@@ -1751,6 +1769,8 @@ function loadMoreQuestions() {
         const isBookmarked = studyState.bookmarks.includes(questionId);
         const isWeak = studyState.weak.includes(questionId);
         const isReviewed = studyState.reviewed.includes(questionId);
+        const allowAI =
+  isActive(question.AllowAI);
 
         const questionImage = question.ImageUrl
           ? `<div class="media-frame"><img class="main-img" src="${escAttr(getImageUrl(question.ImageUrl))}" alt="Question reference" loading="lazy" /></div>`
@@ -1813,14 +1833,59 @@ function loadMoreQuestions() {
               </div>
             </div>
 
-            <div class="ai-answer-box">
-              <div class="ai-answer-heading">
-                <div>
-                  <span class="eyebrow">AI answer check</span>
-                  <strong>Try answering before revealing</strong>
-                </div>
-                <span class="ai-badge" aria-hidden="true">AI</span>
-              </div>
+           ${allowAI ? `
+
+  <div class="ai-answer-box">
+
+    <div class="ai-answer-heading">
+      <div>
+        <span class="eyebrow">
+          AI answer check
+        </span>
+
+        <strong>
+          Try answering before revealing
+        </strong>
+      </div>
+
+      <span
+        class="ai-badge"
+        aria-hidden="true"
+      >
+        AI
+      </span>
+    </div>
+
+    <label class="student-answer-label">
+      Your answer
+    </label>
+
+    <textarea
+      class="student-answer-input"
+      rows="4"
+      placeholder="Type your answer here..."
+    ></textarea>
+
+    <div class="ai-answer-actions">
+
+      <button
+        class="primary ai-grade-button"
+        type="button"
+        onclick="gradeStudentAnswer(this)"
+      >
+        Check answer with AI
+      </button>
+
+    </div>
+
+    <div
+      class="ai-grade-result hidden"
+      aria-live="polite"
+    ></div>
+
+  </div>
+
+` : ''}
 
               <label class="student-answer-label">Your answer</label>
               <textarea class="student-answer-input" rows="4" placeholder="Type your answer here..."></textarea>
@@ -2812,7 +2877,13 @@ function reviewTestMistakes() {
       ImageUrl: document.getElementById('questionImageUrl').value.trim(),
       Tags: document.getElementById('questionTags').value.trim(),
       SortOrder: Number(document.getElementById('questionSort').value) || 0,
-      IsActive: document.getElementById('questionActive').checked,
+      IsActive:
+  document.getElementById('questionActive').checked,
+
+AllowAI:
+  document.getElementById('questionAllowAI').checked,
+
+UpdatedAt: now
       UpdatedAt: now
     };
 
@@ -2868,11 +2939,31 @@ function reviewTestMistakes() {
       document.getElementById('questionTags').value = question.Tags || '';
       document.getElementById('questionSort').value = question.SortOrder ?? 1;
       document.getElementById('questionActive').checked = isActive(question.IsActive);
+      document.getElementById('questionAllowAI').checked =
+  isActive(question.AllowAI); 
       showAdminPage('Questions'); document.getElementById('questionText').focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function clearQuestionForm() {
-      ['questionId', 'questionText', 'answerText', 'answerImageUrl', 'questionImageUrl', 'questionTags'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('questionSort').value = 1; document.getElementById('questionActive').checked = true; renderQuestionTopicSelect();
+
+  [
+    'questionId',
+    'questionText',
+    'answerText',
+    'answerImageUrl',
+    'questionImageUrl',
+    'questionTags'
+  ].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  document.getElementById('questionSort').value = 1;
+
+  document.getElementById('questionActive').checked = true;
+
+  document.getElementById('questionAllowAI').checked = false;
+
+  renderQuestionTopicSelect();
+}
     }
     async function deleteQuestionConfirm(button) {
   const questionId = button.dataset.id;
