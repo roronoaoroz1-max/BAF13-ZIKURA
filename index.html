@@ -10,7 +10,7 @@
   <link rel="icon" type="image/webp" href="app-icon.webp" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="style.css?v=8.0" />
+  <link rel="stylesheet" href="style.css?v=9.0" />
   <style>
     .study-dashboard {
       display: grid;
@@ -1887,18 +1887,6 @@ function loadMoreQuestions() {
 
 ` : ''}
 
-              <label class="student-answer-label">Your answer</label>
-              <textarea class="student-answer-input" rows="4" placeholder="Type your answer here..."></textarea>
-
-              <div class="ai-answer-actions">
-                <button class="primary ai-grade-button" type="button" onclick="gradeStudentAnswer(this)">
-                  Check answer with AI
-                </button>
-              </div>
-
-              <div class="ai-grade-result hidden" aria-live="polite"></div>
-            </div>
-
             <div class="answer" hidden>
               <div class="answer-heading">
                 <span>Official answer</span>
@@ -2884,7 +2872,6 @@ AllowAI:
   document.getElementById('questionAllowAI').checked,
 
 UpdatedAt: now
-      UpdatedAt: now
     };
 
     if (!existingQuestionId) {
@@ -2964,7 +2951,6 @@ UpdatedAt: now
 
   renderQuestionTopicSelect();
 }
-    }
     async function deleteQuestionConfirm(button) {
   const questionId = button.dataset.id;
 
