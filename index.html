@@ -509,6 +509,185 @@
       }
     }
 
+
+    /* =====================================================
+       MCQ QUESTIONS + AUTOMATIC TEST MARKING
+    ===================================================== */
+
+    .question-type-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: var(--accent-strong, #244b3a);
+      background: var(--accent-soft, #eaf2ec);
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .mcq-preview-list,
+    .mcq-test-options {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .mcq-preview-option,
+    .mcq-test-option {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      align-items: start;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line, #ddd9ce);
+      border-radius: 13px;
+      background: var(--surface, #fff);
+    }
+
+    .mcq-option-letter {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--accent-strong, #244b3a);
+      background: var(--accent-soft, #eaf2ec);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .mcq-test-option {
+      grid-template-columns: auto 34px minmax(0, 1fr);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, transform .15s ease;
+    }
+
+    .mcq-test-option:hover {
+      border-color: var(--accent, #315f4b);
+      transform: translateY(-1px);
+    }
+
+    .mcq-test-option input {
+      width: 18px;
+      height: 18px;
+      margin: 6px 0 0;
+      accent-color: var(--accent, #315f4b);
+    }
+
+    .mcq-test-option.is-selected {
+      border-color: var(--accent, #315f4b);
+      background: var(--accent-soft, #eaf2ec);
+    }
+
+    .mcq-test-option.is-correct {
+      border-color: #4f8261;
+      background: #e8f3eb;
+    }
+
+    .mcq-test-option.is-wrong {
+      border-color: var(--danger, #a34d3f);
+      background: #f8e9e6;
+    }
+
+    [data-theme="dark"] .mcq-test-option.is-correct {
+      background: #293a31;
+    }
+
+    [data-theme="dark"] .mcq-test-option.is-wrong {
+      background: #402d2a;
+    }
+
+    .mcq-test-card {
+      padding: 20px;
+      border: 1px solid var(--line, #ddd9ce);
+      border-radius: 18px;
+      background: var(--surface, #fff);
+      box-shadow: var(--shadow-sm, 0 8px 24px rgba(35, 37, 31, .06));
+    }
+
+    .mcq-test-card fieldset {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .mcq-test-card legend {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 0;
+    }
+
+    .mcq-test-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .mcq-test-feedback {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--line, #ddd9ce);
+      border-radius: 14px;
+      background: var(--surface-2, #eeece4);
+    }
+
+    .mcq-test-feedback.correct {
+      border-color: #4f8261;
+      background: #e8f3eb;
+    }
+
+    .mcq-test-feedback.wrong {
+      border-color: var(--danger, #a34d3f);
+      background: #f8e9e6;
+    }
+
+    [data-theme="dark"] .mcq-test-feedback.correct {
+      background: #293a31;
+    }
+
+    [data-theme="dark"] .mcq-test-feedback.wrong {
+      background: #402d2a;
+    }
+
+    .mcq-test-feedback strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .mcq-explanation {
+      margin-top: 10px;
+      color: var(--muted, #686d66);
+    }
+
+    .mcq-correct-summary {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--accent-soft, #eaf2ec);
+    }
+
+    @media (max-width: 520px) {
+      .mcq-test-card {
+        padding: 16px;
+      }
+
+      .mcq-test-actions {
+        display: grid;
+      }
+
+      .mcq-test-actions button {
+        width: 100%;
+      }
+    }
+
   </style>
 
   <script>
@@ -757,6 +936,15 @@
       <option value="weak">Questions that need work</option>
       <option value="bookmarked">Bookmarked questions</option>
       <option value="unreviewed">Questions not reviewed</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="testQuestionType">Question type</label>
+    <select id="testQuestionType">
+      <option value="all" selected>All questions</option>
+      <option value="mcq">MCQ only</option>
+      <option value="written">Written only</option>
     </select>
   </div>
 
@@ -1786,6 +1974,49 @@ function loadMoreQuestions() {
       if (currentView === 'notes') setTimeout(() => renderMath('#notesSection'), 40);
     }
 
+    function getQuestionType(question) {
+      return String(question?.QuestionType || 'written').toLowerCase() === 'mcq'
+        ? 'mcq'
+        : 'written';
+    }
+
+    function getMcqOptions(question) {
+      return ['A', 'B', 'C', 'D', 'E']
+        .map(letter => ({
+          letter,
+          text: String(question?.[`Option${letter}`] || '').trim()
+        }))
+        .filter(option => option.text);
+    }
+
+    function getCorrectMcqOption(question) {
+      return String(question?.CorrectOption || '').trim().toUpperCase();
+    }
+
+    function getMcqOptionText(question, letter) {
+      const option = getMcqOptions(question)
+        .find(item => item.letter === String(letter || '').toUpperCase());
+
+      return option?.text || '';
+    }
+
+    function renderMcqPreview(question) {
+      const options = getMcqOptions(question);
+
+      if (!options.length) return '';
+
+      return `
+        <div class="mcq-preview-list" aria-label="Multiple choice options">
+          ${options.map(option => `
+            <div class="mcq-preview-option">
+              <span class="mcq-option-letter">${esc(option.letter)}</span>
+              <span>${nl2br(esc(option.text))}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
     function renderQuestionCards(questions, options = {}) {
       if (!questions.length) {
         return renderEmptyState(
@@ -1802,8 +2033,8 @@ function loadMoreQuestions() {
         const isBookmarked = studyState.bookmarks.includes(questionId);
         const isWeak = studyState.weak.includes(questionId);
         const isReviewed = studyState.reviewed.includes(questionId);
-        const allowAI =
-  isActive(question.AllowAI);
+        const questionType = getQuestionType(question);
+        const allowAI = questionType === 'written' && isActive(question.AllowAI);
 
         const questionImage = question.ImageUrl
           ? `<div class="media-frame"><img class="main-img" src="${escAttr(getImageUrl(question.ImageUrl))}" alt="Question reference" loading="lazy" /></div>`
@@ -1825,12 +2056,28 @@ function loadMoreQuestions() {
           ? 'Random'
           : String(index + 1).padStart(2, '0');
 
+        const correctOption = getCorrectMcqOption(question);
+        const correctOptionText = getMcqOptionText(question, correctOption);
+
+        const mcqAnswerSummary = questionType === 'mcq' && correctOption
+          ? `
+            <div class="mcq-correct-summary">
+              <span class="mcq-option-letter">${esc(correctOption)}</span>
+              <div>
+                <strong>Correct option</strong>
+                <div>${nl2br(esc(correctOptionText || `Option ${correctOption}`))}</div>
+              </div>
+            </div>
+          `
+          : '';
+
         return `
           <article class="question-card ${options.random ? 'random-card' : ''} ${isBookmarked ? 'is-bookmarked' : ''} ${isWeak ? 'is-weak' : ''} ${isReviewed ? 'is-reviewed' : ''}" data-question-id="${escAttr(encodedQuestionId)}">
             <div class="question-topline">
               <div class="card-meta">
                 <span class="module-badge">${esc(shortModuleName(question.ModuleID))}</span>
                 <span>${esc(getTopicName(question.TopicID) || 'General')}</span>
+                ${questionType === 'mcq' ? '<span class="question-type-badge">MCQ</span>' : ''}
               </div>
               <div class="question-top-actions">
                 ${isReviewed ? '<span class="reviewed-badge">Reviewed</span>' : ''}
@@ -1840,6 +2087,7 @@ function loadMoreQuestions() {
 
             <h2 class="question-title">${nl2br(esc(question.Question || 'Untitled question'))}</h2>
             ${questionImage}
+            ${questionType === 'mcq' ? renderMcqPreview(question) : ''}
             ${tags ? `<div class="tag-line">${tags}</div>` : ''}
 
             <div class="question-actions">
@@ -1866,65 +2114,35 @@ function loadMoreQuestions() {
               </div>
             </div>
 
-           ${allowAI ? `
+            ${allowAI ? `
+              <div class="ai-answer-box">
+                <div class="ai-answer-heading">
+                  <div>
+                    <span class="eyebrow">AI answer check</span>
+                    <strong>Try answering before revealing</strong>
+                  </div>
+                  <span class="ai-badge" aria-hidden="true">AI</span>
+                </div>
 
-  <div class="ai-answer-box">
+                <label class="student-answer-label">Your answer</label>
+                <textarea class="student-answer-input" rows="4" placeholder="Type your answer here..."></textarea>
 
-    <div class="ai-answer-heading">
-      <div>
-        <span class="eyebrow">
-          AI answer check
-        </span>
+                <div class="ai-answer-actions">
+                  <button class="primary ai-grade-button" type="button" onclick="gradeStudentAnswer(this)">
+                    Check answer with AI
+                  </button>
+                </div>
 
-        <strong>
-          Try answering before revealing
-        </strong>
-      </div>
-
-      <span
-        class="ai-badge"
-        aria-hidden="true"
-      >
-        AI
-      </span>
-    </div>
-
-    <label class="student-answer-label">
-      Your answer
-    </label>
-
-    <textarea
-      class="student-answer-input"
-      rows="4"
-      placeholder="Type your answer here..."
-    ></textarea>
-
-    <div class="ai-answer-actions">
-
-      <button
-        class="primary ai-grade-button"
-        type="button"
-        onclick="gradeStudentAnswer(this)"
-      >
-        Check answer with AI
-      </button>
-
-    </div>
-
-    <div
-      class="ai-grade-result hidden"
-      aria-live="polite"
-    ></div>
-
-  </div>
-
-` : ''}
+                <div class="ai-grade-result hidden" aria-live="polite"></div>
+              </div>
+            ` : ''}
 
             <div class="answer" hidden>
               <div class="answer-heading">
-                <span>Official answer</span>
+                <span>${questionType === 'mcq' ? 'Answer & explanation' : 'Official answer'}</span>
                 <button type="button" class="copy-button" onclick="copyAnswer(this)">Copy</button>
               </div>
+              ${mcqAnswerSummary}
               <div class="answer-copy-source">${nl2br(esc(question.Answer || 'No answer has been added yet.'))}</div>
               ${answerImage}
             </div>
@@ -2168,18 +2386,31 @@ function loadMoreQuestions() {
 
 function startScoredTest() {
   const source = document.getElementById('testQuestionSource')?.value || 'selection';
-  const availableQuestions = source === 'selection'
+  const typeFilter = document.getElementById('testQuestionType')?.value || 'all';
+
+  let availableQuestions = source === 'selection'
     ? getFilteredQuestions()
     : getFilteredQuestions(source);
 
+  if (typeFilter === 'mcq') {
+    availableQuestions = availableQuestions.filter(
+      question => getQuestionType(question) === 'mcq'
+    );
+  } else if (typeFilter === 'written') {
+    availableQuestions = availableQuestions.filter(
+      question => getQuestionType(question) === 'written'
+    );
+  }
+
   if (!availableQuestions.length) {
     showToast(
-      'No questions are available for this selection.',
+      typeFilter === 'all'
+        ? 'No questions are available for this selection.'
+        : `No ${typeFilter === 'mcq' ? 'MCQ' : 'written'} questions are available for this selection.`,
       'error'
     );
     return;
   }
-  
 
   const requestedCount =
     Number(document.getElementById('testQuestionCount').value) || 10;
@@ -2208,12 +2439,18 @@ function startScoredTest() {
 
   renderScoredTestQuestion();
 }
+
 function renderScoredTestQuestion() {
   if (!testInProgress || !testQuestions.length) return;
 
   const question = testQuestions[testIndex];
   const completedCount =
     testScore.correct + testScore.wrong + testScore.skipped;
+
+  if (getQuestionType(question) === 'mcq') {
+    renderMcqScoredTestQuestion(question, completedCount);
+    return;
+  }
 
   document.getElementById('randomQuestionBox').innerHTML = `
     <div class="test-progress">
@@ -2265,6 +2502,220 @@ function renderScoredTestQuestion() {
   }, 40);
 }
 
+function renderMcqScoredTestQuestion(question, completedCount) {
+  const options = getMcqOptions(question);
+  const questionImage = question.ImageUrl
+    ? `<div class="media-frame"><img class="main-img" src="${escAttr(getImageUrl(question.ImageUrl))}" alt="Question reference" loading="lazy" /></div>`
+    : '';
+
+  document.getElementById('randomQuestionBox').innerHTML = `
+    <div class="test-progress">
+      <div>
+        <strong>Question ${testIndex + 1} of ${testQuestions.length}</strong>
+        <span>Correct: ${testScore.correct} · Wrong: ${testScore.wrong} · Skipped: ${testScore.skipped}</span>
+      </div>
+      <div class="test-progress-track" role="progressbar" aria-label="Test progress" aria-valuemin="0" aria-valuemax="${testQuestions.length}" aria-valuenow="${completedCount}">
+        <span style="width: ${Math.round((completedCount / testQuestions.length) * 100)}%"></span>
+      </div>
+    </div>
+
+    <article class="mcq-test-card" data-mcq-test-card>
+      <div class="question-topline">
+        <div class="card-meta">
+          <span class="module-badge">${esc(shortModuleName(question.ModuleID))}</span>
+          <span>${esc(getTopicName(question.TopicID) || 'General')}</span>
+          <span class="question-type-badge">MCQ</span>
+        </div>
+        <span class="question-number">${String(testIndex + 1).padStart(2, '0')}</span>
+      </div>
+
+      <fieldset>
+        <legend>
+          <h2 class="question-title">${nl2br(esc(question.Question || 'Untitled question'))}</h2>
+        </legend>
+
+        ${questionImage}
+
+        <div class="mcq-test-options">
+          ${options.map(option => `
+            <label class="mcq-test-option" data-mcq-option="${escAttr(option.letter)}">
+              <input
+                type="radio"
+                name="mcq-test-answer"
+                value="${escAttr(option.letter)}"
+                onchange="selectMcqTestOption(this)"
+              />
+              <span class="mcq-option-letter">${esc(option.letter)}</span>
+              <span>${nl2br(esc(option.text))}</span>
+            </label>
+          `).join('')}
+        </div>
+      </fieldset>
+
+      <div class="mcq-test-actions" data-mcq-unanswered-actions>
+        <button class="primary" type="button" onclick="submitMcqTestAnswer()">
+          Submit answer
+        </button>
+        <button class="secondary" type="button" onclick="markTestAnswer('skipped')">
+          Skip
+        </button>
+      </div>
+
+      <div class="mcq-test-feedback hidden" data-mcq-feedback aria-live="polite"></div>
+
+      <div class="mcq-test-actions hidden" data-mcq-next-actions>
+        <button class="primary" type="button" onclick="nextScoredTestQuestion()">
+          ${testIndex + 1 >= testQuestions.length ? 'Finish test' : 'Next question →'}
+        </button>
+      </div>
+    </article>
+
+    <p>${completedCount} of ${testQuestions.length} questions completed</p>
+  `;
+
+  setTimeout(() => {
+    renderMath('#randomQuestionBox');
+  }, 40);
+}
+
+function selectMcqTestOption(input) {
+  const card = input.closest('[data-mcq-test-card]');
+  if (!card) return;
+
+  card.querySelectorAll('.mcq-test-option').forEach(label => {
+    label.classList.toggle(
+      'is-selected',
+      label.contains(input)
+    );
+  });
+}
+
+function submitMcqTestAnswer() {
+  if (!testInProgress) return;
+
+  const question = testQuestions[testIndex];
+
+  if (!question || getQuestionType(question) !== 'mcq') return;
+
+  const card = document.querySelector('[data-mcq-test-card]');
+  const selected = card?.querySelector('input[name="mcq-test-answer"]:checked');
+
+  if (!selected) {
+    showToast('Choose an answer first.', 'error');
+    return;
+  }
+
+  const selectedOption = String(selected.value || '').toUpperCase();
+  const correctOption = getCorrectMcqOption(question);
+
+  if (!correctOption) {
+    showToast('This MCQ does not have a correct option set.', 'error');
+    return;
+  }
+
+  const isCorrect = selectedOption === correctOption;
+  const result = isCorrect ? 'correct' : 'wrong';
+
+  recordQuestionAttempt(question, result);
+
+  if (isCorrect) {
+    testScore.correct++;
+  } else {
+    testScore.wrong++;
+  }
+
+  testAnswerHistory.push({
+    QuestionID: question.QuestionID,
+    ModuleID: question.ModuleID,
+    TopicID: question.TopicID,
+    Question: question.Question,
+    Answer: question.Answer,
+    QuestionType: 'mcq',
+    selectedOption,
+    correctOption,
+    result
+  });
+
+  card.querySelectorAll('input[name="mcq-test-answer"]').forEach(input => {
+    input.disabled = true;
+  });
+
+  card.querySelectorAll('[data-mcq-option]').forEach(label => {
+    const letter = label.dataset.mcqOption;
+
+    label.classList.remove('is-selected');
+
+    if (letter === correctOption) {
+      label.classList.add('is-correct');
+    } else if (letter === selectedOption && !isCorrect) {
+      label.classList.add('is-wrong');
+    }
+  });
+
+  const feedback = card.querySelector('[data-mcq-feedback]');
+  const correctText = getMcqOptionText(question, correctOption);
+
+  if (feedback) {
+    feedback.classList.remove('hidden', 'correct', 'wrong');
+    feedback.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    feedback.innerHTML = `
+      <strong>${isCorrect ? '✓ Correct' : '✕ Incorrect'}</strong>
+      ${
+        isCorrect
+          ? `<div>You selected ${esc(selectedOption)}.</div>`
+          : `<div>Correct answer: <b>${esc(correctOption)}</b>${correctText ? ` — ${nl2br(esc(correctText))}` : ''}</div>`
+      }
+      ${question.Answer ? `<div class="mcq-explanation">${nl2br(esc(question.Answer))}</div>` : ''}
+    `;
+  }
+
+  card
+    .querySelector('[data-mcq-unanswered-actions]')
+    ?.classList.add('hidden');
+
+  card
+    .querySelector('[data-mcq-next-actions]')
+    ?.classList.remove('hidden');
+
+  const completedCount =
+    testScore.correct + testScore.wrong + testScore.skipped;
+
+  const progress = document.querySelector('.test-progress');
+
+  if (progress) {
+    const scoreLine = progress.querySelector('span');
+    if (scoreLine) {
+      scoreLine.textContent =
+        `Correct: ${testScore.correct} · Wrong: ${testScore.wrong} · Skipped: ${testScore.skipped}`;
+    }
+
+    const bar = progress.querySelector('.test-progress-track span');
+    if (bar) {
+      bar.style.width =
+        `${Math.round((completedCount / testQuestions.length) * 100)}%`;
+    }
+
+    progress.querySelector('.test-progress-track')
+      ?.setAttribute('aria-valuenow', String(completedCount));
+  }
+
+  setTimeout(() => renderMath(card), 30);
+}
+
+function nextScoredTestQuestion() {
+  if (!testInProgress) return;
+
+  testIndex++;
+
+  if (testIndex >= testQuestions.length) {
+    finishScoredTest();
+    return;
+  }
+
+  renderScoredTestQuestion();
+}
+
 function markTestAnswer(result) {
   if (!testInProgress) return;
 
@@ -2285,6 +2736,7 @@ function markTestAnswer(result) {
     TopicID: question.TopicID,
     Question: question.Question,
     Answer: question.Answer,
+    QuestionType: getQuestionType(question),
     result
   });
 
@@ -3077,8 +3529,13 @@ function reviewTestMistakes() {
       let list = adminData.questions;
       if (query) list = list.filter(question => [question.Question, question.Answer, question.Tags, getModuleNameFrom(adminData.modules, question.ModuleID), getTopicNameFrom(adminData.topics, question.TopicID)].join(' ').toLowerCase().includes(query));
       if (!list.length) { element.innerHTML = adminEmpty(query ? 'No matching questions' : 'No questions yet'); return; }
-      element.innerHTML = list.map(question => `
-        <article class="admin-list-card"><div class="list-card-main"><span class="record-id">${esc(shortModuleNameFrom(adminData.modules, question.ModuleID))} · ${esc(getTopicNameFrom(adminData.topics, question.TopicID))}</span><strong>${esc(shortText(question.Question, 105))}</strong><small>${esc(shortText(question.Answer, 125))}</small></div><div class="small-actions"><button class="secondary" type="button" data-record="${encodeRecord(question)}" onclick="editQuestionRecord(this)">Edit</button><button class="danger-ghost" type="button" data-id="${escAttr(question.QuestionID)}" onclick="deleteQuestionConfirm(this)">Delete</button></div></article>`).join('');
+      element.innerHTML = list.map(question => {
+        const typeLabel = getQuestionType(question) === 'mcq' ? 'MCQ' : 'Written';
+        const aiLabel = getQuestionType(question) === 'written' && isActive(question.AllowAI) ? ' · AI enabled' : '';
+
+        return `
+          <article class="admin-list-card"><div class="list-card-main"><span class="record-id">${esc(shortModuleNameFrom(adminData.modules, question.ModuleID))} · ${esc(getTopicNameFrom(adminData.topics, question.TopicID))} · ${esc(typeLabel)}${esc(aiLabel)}</span><strong>${esc(shortText(question.Question, 105))}</strong><small>${esc(shortText(question.Answer, 125))}</small></div><div class="small-actions"><button class="secondary" type="button" data-record="${encodeRecord(question)}" onclick="editQuestionRecord(this)">Edit</button><button class="danger-ghost" type="button" data-id="${escAttr(question.QuestionID)}" onclick="deleteQuestionConfirm(this)">Delete</button></div></article>`;
+      }).join('');
     }
 
    async function saveShortNoteForm() {
