@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f5f3ec" />
-  <meta name="description" content="Zikura practice questions, short notes, and focused revision." />
-  <title>BAF13 — Zikura Study Hub</title>
+  <meta name="description" content="Ranboli exam practice questions, short notes, tests, and focused revision." />
+  <title>Ranboli — Exam Practice Hub</title>
 
   <link rel="icon" type="image/webp" href="app-icon.webp" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
@@ -710,8 +710,8 @@
       <button class="brand" type="button" onclick="showView('home')" aria-label="Go to home">
         <span class="brand-mark" aria-hidden="true"><img src="app-icon.webp" alt="" /></span>
         <span class="brand-copy">
-          <strong id="appTitle">BAF13 — ZIKURA</strong>
-          <small>Study hub</small>
+          <strong id="appTitle">Ranboli</strong>
+          <small>Exam practice hub</small>
         </span>
       </button>
 
@@ -1451,10 +1451,10 @@ appData = {
   notes: activeNotes
 };
 
-        const appName = settingsResult.data?.Value || 'BAF13 — ZIKURA';
+        const appName = settingsResult.data?.Value || 'Ranboli';
 
         document.getElementById('appTitle').textContent = appName;
-        document.title = appName + ' — Study Hub';
+        document.title = appName + ' — Exam Practice Hub';
 
         loadingBox.classList.add('hidden');
         renderPublic();
