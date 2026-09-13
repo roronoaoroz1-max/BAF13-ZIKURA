@@ -3078,18 +3078,240 @@ function reviewTestMistakes() {
       });
     }
 
-    function renderAdminSelects() {
-      const options = adminData.modules.map(module => `<option value="${escAttr(module.ModuleID)}">${esc(module.ModuleID)} — ${esc(module.ModuleName)}</option>`).join('');
-      ['topicModule', 'questionModule', 'noteModule'].forEach(id => document.getElementById(id).innerHTML = options);
-      renderQuestionTopicSelect();
-      renderNoteTopicSelect();
+   function renderAdminSelects() {
+    const questionModuleSelect =
+        document.getElementById('questionModule');
+
+    const questionTopicSelect =
+        document.getElementById('questionTopic');
+
+    const previousQuestionModule =
+        questionModuleSelect?.value || '';
+
+    const previousQuestionTopic =
+        questionTopicSelect?.value || '';
+
+    const options =
+        adminData.modules
+            .map(
+                module =>
+                    `<option value="${escAttr(module.ModuleID)}">${esc(module.ModuleID)} — ${esc(module.ModuleName)}</option>`
+            )
+            .join('');
+
+
+    [
+        'topicModule',
+        'questionModule',
+        'noteModule'
+    ].forEach(
+        id => {
+            document.getElementById(id).innerHTML =
+                options;
+        }
+    );
+
+
+    /*
+        Keep the selected Question module after saving /
+        refreshing the admin data.
+    */
+
+    if (
+        previousQuestionModule &&
+        adminData.modules.some(
+            module =>
+                String(module.ModuleID) ===
+                String(previousQuestionModule)
+        )
+    ) {
+        questionModuleSelect.value =
+            previousQuestionModule;
     }
 
-    function renderQuestionTopicSelect() {
-      const moduleId = document.getElementById('questionModule').value;
-      const topics = adminData.topics.filter(topic => String(topic.ModuleID) === String(moduleId));
-      document.getElementById('questionTopic').innerHTML = topics.map(topic => `<option value="${escAttr(topic.TopicID)}">${esc(topic.TopicName)}</option>`).join('');
+
+    renderQuestionTopicSelect(
+        previousQuestionTopic
+    );
+
+    renderNoteTopicSelect();
+}
+
+
+/* ============================================================
+   NEXT AVAILABLE QUESTION SORT ORDER
+============================================================ */
+
+function getNextAvailableQuestionSortOrder(
+    moduleId,
+    topicId
+) {
+
+    if (
+        !moduleId ||
+        !topicId
+    ) {
+        return 1;
     }
+
+
+    const usedSortOrders =
+        new Set(
+            (adminData.questions || [])
+                .filter(
+                    question =>
+                        String(question.ModuleID) ===
+                            String(moduleId)
+                        &&
+                        String(question.TopicID) ===
+                            String(topicId)
+                )
+                .map(
+                    question =>
+                        Number(question.SortOrder)
+                )
+                .filter(
+                    sortOrder =>
+                        Number.isInteger(sortOrder)
+                        &&
+                        sortOrder > 0
+                )
+        );
+
+
+    let nextSortOrder = 1;
+
+
+    while (
+        usedSortOrders.has(
+            nextSortOrder
+        )
+    ) {
+        nextSortOrder += 1;
+    }
+
+
+    return nextSortOrder;
+}
+
+
+/* ============================================================
+   APPLY NEXT SORT ORDER TO NEW QUESTION
+============================================================ */
+
+function updateNextQuestionSortOrder() {
+
+    const questionId =
+        document
+            .getElementById('questionId')
+            .value
+            .trim();
+
+
+    /*
+        Do not automatically change Sort Order
+        while editing an existing question.
+    */
+
+    if (questionId) {
+        return;
+    }
+
+
+    const moduleId =
+        document.getElementById(
+            'questionModule'
+        ).value;
+
+
+    const topicId =
+        document.getElementById(
+            'questionTopic'
+        ).value;
+
+
+    const sortInput =
+        document.getElementById(
+            'questionSort'
+        );
+
+
+    if (!sortInput) {
+        return;
+    }
+
+
+    sortInput.value =
+        getNextAvailableQuestionSortOrder(
+            moduleId,
+            topicId
+        );
+}
+
+
+/* ============================================================
+   QUESTION WEEK / TOPIC SELECT
+============================================================ */
+
+function renderQuestionTopicSelect(
+    preferredTopicId = ''
+) {
+
+    const moduleId =
+        document.getElementById(
+            'questionModule'
+        ).value;
+
+
+    const topicSelect =
+        document.getElementById(
+            'questionTopic'
+        );
+
+
+    const previousTopicId =
+        preferredTopicId ||
+        topicSelect.value ||
+        '';
+
+
+    const topics =
+        adminData.topics.filter(
+            topic =>
+                String(topic.ModuleID) ===
+                String(moduleId)
+        );
+
+
+    topicSelect.innerHTML =
+        topics
+            .map(
+                topic =>
+                    `<option value="${escAttr(topic.TopicID)}">${esc(topic.TopicName)}</option>`
+            )
+            .join('');
+
+
+    /*
+        Keep the same week/topic if it still belongs
+        to the selected module.
+    */
+
+    if (
+        previousTopicId &&
+        topics.some(
+            topic =>
+                String(topic.TopicID) ===
+                String(previousTopicId)
+        )
+    ) {
+        topicSelect.value =
+            previousTopicId;
+    }
+
+
+    updateNextQuestionSortOrder();
+}
 
     function renderNoteTopicSelect() {
       const moduleId = document.getElementById('noteModule').value;
