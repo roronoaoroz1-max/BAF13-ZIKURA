@@ -1070,7 +1070,13 @@
                   <input type="hidden" id="questionId" />
                   <div class="form-split">
                     <div class="form-row"><label for="questionModule">Module</label><select id="questionModule" onchange="renderQuestionTopicSelect()"></select></div>
-                    <div class="form-row"><label for="questionTopic">Week or topic</label><select id="questionTopic"></select></div>
+                   <div class="form-row">
+    <label for="questionTopic">Week or topic</label>
+    <select
+        id="questionTopic"
+        onchange="updateNextQuestionSortOrder()"
+    ></select>
+</div>
                   </div>
                   <div class="form-row">
                     <label for="questionType">Question type</label>
